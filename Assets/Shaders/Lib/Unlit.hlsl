@@ -36,7 +36,8 @@ float4 UnlitPassFrag( VertexOutput input ) :SV_TARGET
     float4 baseMap = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
     float4 color = _Color;
     float4 baseColor = baseMap * color;
-    clip(baseColor.a - _CutOff);
-    
+    #if defined(_CLIPPING)
+        clip(baseColor.a - _CutOff);
+    #endif
     return baseColor;
 }
