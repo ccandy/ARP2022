@@ -8,12 +8,14 @@ using UnityEngine.Rendering;
 public class CameraRender
 {
    ScriptableRenderContext context;
-   Camera camera;
+   Camera _camera;
    const string bufferName = "CameraRender";
    private CommandBuffer cmd;
    private CullingResults _cullingResults;
    private static ShaderTagId shaderTagId = new ShaderTagId("SRPDefaultUnlit");
-
+   private string camBufferName;
+   
+   
    private static ShaderTagId[] unsupportShaderTagId =
    {
       new ShaderTagId("Always"),
@@ -30,22 +32,24 @@ public class CameraRender
    public void Render(ScriptableRenderContext context, Camera camera)
    {
       this.context = context;
-      this.camera = camera;
+      _camera = camera;
+
+      camBufferName = camera.name + " " + bufferName;
 
       cmd = new CommandBuffer()
       {
-         name = bufferName
+         name = camBufferName
       };
 
-      PrepareSceneForSceneWindow(this.camera);
+      PrepareSceneForSceneWindow(this._camera);
       
       if (!Cull())
       {
          return;
       }
       Setup();
-      DrawVisibleGeometry(this.camera);
-      DrawUnsupportedGeometry(this.camera);
+      DrawVisibleGeometry(this._camera);
+      DrawUnsupportedGeometry(this._camera);
       DrawGizmos();
       Submit();
    }
@@ -54,7 +58,7 @@ public class CameraRender
    {
       ScriptableCullingParameters p;
 
-      if (camera.TryGetCullingParameters(out p))
+      if (_camera.TryGetCullingParameters(out p))
       {
          _cullingResults = context.Cull(ref p);
          return true;
@@ -64,15 +68,18 @@ public class CameraRender
 
    void Setup()
    {
-      context.SetupCameraProperties(camera);
-      cmd.ClearRenderTarget(true, true, Color.clear);
-      BeginSample();
+      context.SetupCameraProperties(_camera);
+      CameraClearFlags flags = _camera.clearFlags;
+      cmd.ClearRenderTarget(flags <= CameraClearFlags.Depth, 
+         flags == CameraClearFlags.Color, 
+         flags == CameraClearFlags.Color ? _camera.backgroundColor.linear : Color.clear);
+      BeginSample(camBufferName);
    }
    
 
    void Submit()
    {
-      EndSample();
+      EndSample(camBufferName);
       context.Submit();
    }
 
@@ -131,13 +138,13 @@ public class CameraRender
       context.DrawRenderers(_cullingResults, ref drawingSettings, ref filteringSettings);
    }
    
-   void BeginSample()
+   void BeginSample(string bufferName)
    {
       cmd.BeginSample(bufferName);
       ExecuteCommandBuffer(cmd);
    }
 
-   void EndSample()
+   void EndSample(string bufferName)
    {
       cmd.EndSample(bufferName);
       ExecuteCommandBuffer(cmd);
@@ -153,8 +160,8 @@ public class CameraRender
    {
       if (Handles.ShouldRenderGizmos())
       {
-         context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
-         context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
+         context.DrawGizmos(_camera, GizmoSubset.PreImageEffects);
+         context.DrawGizmos(_camera, GizmoSubset.PostImageEffects);
       }
    }
 
