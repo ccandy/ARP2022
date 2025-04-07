@@ -37,6 +37,8 @@ public class CameraRender
          name = bufferName
       };
 
+      PrepareSceneForSceneWindow(this.camera);
+      
       if (!Cull())
       {
          return;
@@ -153,6 +155,14 @@ public class CameraRender
       {
          context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
          context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
+      }
+   }
+
+   private void PrepareSceneForSceneWindow(Camera camera)
+   {
+      if (camera.cameraType == CameraType.SceneView)
+      {
+         ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);
       }
    }
    
