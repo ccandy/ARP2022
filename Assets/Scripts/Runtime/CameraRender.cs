@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -43,6 +44,7 @@ public class CameraRender
       Setup();
       DrawVisibleGeometry(this.camera);
       DrawUnsupportedGeometry(this.camera);
+      DrawGizmos();
       Submit();
    }
 
@@ -143,6 +145,15 @@ public class CameraRender
    {
       context.ExecuteCommandBuffer(cmd);
       cmd.Clear();
+   }
+
+   void DrawGizmos()
+   {
+      if (Handles.ShouldRenderGizmos())
+      {
+         context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
+         context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
+      }
    }
    
 }
