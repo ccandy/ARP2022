@@ -12,10 +12,13 @@ public class CameraRender
    const string bufferName = "CameraRender";
    private CommandBuffer cmd;
    private CullingResults _cullingResults;
-   private static ShaderTagId shaderTagId = new ShaderTagId("SRPDefaultUnlit");
+
+   private static ShaderTagId[] supportShaderTagId =
+   {
+      new ShaderTagId("SRPDefaultUnlit"),
+      new ShaderTagId("ARPLit"),
+   };
    private string camBufferName;
-   
-   
    private static ShaderTagId[] unsupportShaderTagId =
    {
       new ShaderTagId("Always"),
@@ -28,6 +31,9 @@ public class CameraRender
    };
 
    private Material _errMaterial;
+   
+   
+   private LightRender _lightRender = new LightRender();
    
    public void Render(ScriptableRenderContext context, Camera camera)
    {
@@ -48,6 +54,7 @@ public class CameraRender
          return;
       }
       Setup();
+      _lightRender.Render(context, ref _cullingResults);
       DrawVisibleGeometry(this._camera);
       DrawUnsupportedGeometry(this._camera);
       DrawGizmos();
@@ -85,31 +92,40 @@ public class CameraRender
 
    void DrawVisibleGeometry(Camera camera)
    {
-      DrawOpaqueGeometry(camera);
+      var sortingSettings = new SortingSettings(camera);
+      var drawingSettings = new DrawingSettings(supportShaderTagId[0], sortingSettings);
+      for (int i = 1; i < supportShaderTagId.Length; i++)
+      {
+         var shaderTagId = supportShaderTagId[i];
+         drawingSettings.SetShaderPassName(i,shaderTagId);
+      }
+      
+      DrawOpaqueGeometry(camera, ref drawingSettings);
       context.DrawSkybox(camera);
-      DrawTransparentGeometry(camera);
+      DrawTransparentGeometry(camera, ref drawingSettings);
    }
 
 
-   void DrawOpaqueGeometry(Camera camera)
+   void DrawOpaqueGeometry(Camera camera, ref DrawingSettings drawingSettings)
    {
+      
+      
       var sortingSettings = new SortingSettings(camera)
       {
          criteria = SortingCriteria.CommonOpaque
       };
-      var drawingSettings = new DrawingSettings(shaderTagId, sortingSettings);
+      drawingSettings.sortingSettings = sortingSettings;
       var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
       context.DrawRenderers(_cullingResults, ref drawingSettings, ref filteringSettings);
    }
 
-   void DrawTransparentGeometry(Camera camera)
+   void DrawTransparentGeometry(Camera camera,ref DrawingSettings drawingSettings)
    {
       var sortingSettings = new SortingSettings(camera)
       {
          criteria = SortingCriteria.CommonTransparent
       };
-      
-      var drawingSettings = new DrawingSettings(shaderTagId, sortingSettings);
+      drawingSettings.sortingSettings = sortingSettings;
       var filteringSettings = new FilteringSettings(RenderQueueRange.transparent);
       context.DrawRenderers(_cullingResults, ref drawingSettings, ref filteringSettings);
    }
@@ -129,7 +145,7 @@ public class CameraRender
          overrideMaterial = _errMaterial
       };
 
-      for (int i = 0; i < unsupportShaderTagId.Length; i++)
+      for (int i = 1; i < unsupportShaderTagId.Length; i++)
       {
          var shaderTagId = unsupportShaderTagId[i];
          drawingSettings.SetShaderPassName(i,shaderTagId);
