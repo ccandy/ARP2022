@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #define MAX_DIRECTIONS_LIGHTS 4
 
 CBUFFER_START(UnityPerMaterial)
@@ -21,12 +19,14 @@ struct VertexInput
 {
     float4 PositionOS : POSITION;
     float2 uv : TEXCOORD0;
+    float3 Normal : NORMAL;
 };
 
 struct VertexOutput
 {
     float4 PositionCS : SV_POSITION;
     float2 uv : VAR_BASE_UV;
+    float3 NormalWS : NORMAL;
 };
 
 VertexOutput LitPassVertex( VertexInput input )
@@ -36,6 +36,7 @@ VertexOutput LitPassVertex( VertexInput input )
     float3 worldPos = TransformObjectToWorld(input.PositionOS.xyz);
     output.PositionCS = TransformWorldToHClip(worldPos);
     output.uv = TRANSFORM_TEX(input.uv,_MainTex);
+    output.NormalWS =  TransformObjectToWorldNormal(input.Normal);
     return output;
 }
 
@@ -45,5 +46,6 @@ float4 LitPassFrag( VertexOutput input ) :SV_TARGET
     float4 baseMap = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
     float4 color = _Color;
     float4 baseColor = baseMap * color;
-    return baseColor;
+    Surface surface = GetSurface(baseColor, input.NormalWS);
+    return surface.baseColor;
 }
