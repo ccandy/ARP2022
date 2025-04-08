@@ -23,7 +23,7 @@ public class LightRender
     {
         cmd = new CommandBuffer()
         {
-            name = "LightRender"
+            name = bufferName
         };
     }
 
