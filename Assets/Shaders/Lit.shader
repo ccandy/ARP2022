@@ -1,4 +1,4 @@
-Shader "ARP/Unlit"
+Shader "ARP/Lit"
 {
     Properties
     {
@@ -21,6 +21,7 @@ Shader "ARP/Unlit"
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFrag
             #include "Lib/Common.hlsl"
+            #include "Lib/Surface.hlsl"
             #include "Lib/Lit.hlsl"
 
             
