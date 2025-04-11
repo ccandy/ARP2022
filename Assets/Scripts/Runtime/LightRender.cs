@@ -75,7 +75,7 @@ public class LightRender
         
         cmd.SetGlobalVectorArray(DirectionalLightsColorId,DirectionaLightsColor);
         cmd.SetGlobalVectorArray(DirectionalLightsDirId, DirectionaLightsDir);
-        cmd.SetGlobalInt(DirectionalLightsDirId, directionalLightCount);
+        cmd.SetGlobalInt(DirectonalLightAccountId, directionalLightCount);
         context.ExecuteCommandBuffer(cmd);
         cmd.Clear();
     }

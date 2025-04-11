@@ -22,6 +22,8 @@ Shader "ARP/Lit"
             #pragma fragment LitPassFrag
             #include "Lib/Common.hlsl"
             #include "Lib/Surface.hlsl"
+            #include "Lib/Light.hlsl"
+            #include "Lib/Lighting.hlsl"
             #include "Lib/Lit.hlsl"
 
             

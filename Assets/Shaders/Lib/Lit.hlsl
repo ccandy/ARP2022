@@ -3,8 +3,6 @@
 #define MAX_DIRECTIONS_LIGHTS 4
 
 CBUFFER_START(UnityPerMaterial)
-    float4 _DirectionaLightsDir[MAX_DIRECTIONS_LIGHTS];
-    float4 _DirectionalLightsColor[MAX_DIRECTIONS_LIGHTS];
     float4 _Color;
     float4 _MainTex_ST;
     float _CutOff;
@@ -47,5 +45,7 @@ float4 LitPassFrag( VertexOutput input ) :SV_TARGET
     float4 color = _Color;
     float4 baseColor = baseMap * color;
     Surface surface = GetSurface(baseColor, input.NormalWS);
-    return surface.baseColor;
+    half3 result = GetIncomingLightsColors(surface);
+    
+    return half4(result, surface.alpha);
 }
