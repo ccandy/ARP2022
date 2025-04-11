@@ -5,7 +5,7 @@
 CBUFFER_START(LightBuffer)
     float4 _DirectionaLightsDir[MAX_DIRECTIONS_LIGHTS];
     float4 _DirectionalLightsColor[MAX_DIRECTIONS_LIGHTS];
-    float _directionalLightCount;
+    int _DirectionalLightCount;
 CBUFFER_END
 
 
@@ -19,7 +19,7 @@ struct Light
 
 int GetDirectionalCount()
 {
-    return _directionalLightCount;
+    return _DirectionalLightCount;
 }
 
 Light GetDirectionalLight(int index)

@@ -9,6 +9,7 @@ public class LightRender
     
     private int DirectionalLightsDirId = Shader.PropertyToID("_DirectionaLightsDir");
     private int DirectionalLightsColorId = Shader.PropertyToID("_DirectionalLightsColor");
+    private int DirectonalLightAccountId = Shader.PropertyToID("_DirectionalLightCount");
     
     private const string bufferName = "LightBuffer";
     private const int MAX_DIRECTIONS_LIGHTS = 4;
@@ -74,6 +75,7 @@ public class LightRender
         
         cmd.SetGlobalVectorArray(DirectionalLightsColorId,DirectionaLightsColor);
         cmd.SetGlobalVectorArray(DirectionalLightsDirId, DirectionaLightsDir);
+        cmd.SetGlobalInt(DirectionalLightsDirId, directionalLightCount);
         context.ExecuteCommandBuffer(cmd);
         cmd.Clear();
     }
