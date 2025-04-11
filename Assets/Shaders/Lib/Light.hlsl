@@ -5,6 +5,7 @@
 CBUFFER_START(LightBuffer)
     float4 _DirectionaLightsDir[MAX_DIRECTIONS_LIGHTS];
     float4 _DirectionalLightsColor[MAX_DIRECTIONS_LIGHTS];
+    int _directionalLightCount;
 CBUFFER_END
 
 
@@ -15,6 +16,11 @@ struct Light
     float3 lightPosition;
     float attenuation;
 };
+
+int GetDirectionalCount()
+{
+    return _directionalLightCount;
+}
 
 Light GetDirectionalLight(int index)
 {
