@@ -5,7 +5,7 @@
 CBUFFER_START(LightBuffer)
     float4 _DirectionaLightsDir[MAX_DIRECTIONS_LIGHTS];
     float4 _DirectionalLightsColor[MAX_DIRECTIONS_LIGHTS];
-    int _directionalLightCount;
+    float _directionalLightCount;
 CBUFFER_END
 
 
