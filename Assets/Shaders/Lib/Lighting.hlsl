@@ -31,14 +31,14 @@ half3 GetIncomingLightsColors(Surface surface)
     for (int n = 0; n < directonalCount; ++n)
     {
         #if defined(ARP_PBR_ON)
+            
+        #else
             Light light = GetDirectionalLight(n);
             half3 diffuse = GetPhongDiffuse(surface, light);
             half3 specular = GetPhongSpecular(surface, light);
 
             half3 lightColor = (diffuse + specular) * light.lightColor * surface.baseColor;
             res += lightColor;
-        #else
-            
         #endif 
     }
     return res;
