@@ -4,17 +4,17 @@
 
 CBUFFER_START(UnityPerMaterial)
     float4 _Color;
-    float4 _SpecularColor;
+   
     float4 _MainTex_ST;
     float _CutOff;
+    float4 _SpecularColor;
+    float _Roughness;
+    float _Metallic;
     float _Shininess;
-
 CBUFFER_END
 
 TEXTURE2D(_MainTex);
 SAMPLER(sampler_MainTex);
-
-
 
 struct VertexInput
 {
@@ -50,8 +50,9 @@ float4 LitPassFrag( VertexOutput input ) :SV_TARGET
     float4 color = _Color;
     float4 baseColor = baseMap * color;
     float3 worldPos = input.worldPos;
-    Surface surface = GetSurface(baseColor, input.NormalWS, worldPos, _Shininess, _SpecularColor.rgb);
+    float3 normalWS = input.NormalWS;
+    Surface surface = GetSurface(baseColor,normalWS, worldPos, _SpecularColor, _Shininess, _Roughness, _Metallic);
     half3 result = GetIncomingLightsColors(surface);
-    
+     
     return half4(result, surface.alpha);
 }
