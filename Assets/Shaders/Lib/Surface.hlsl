@@ -17,14 +17,14 @@ Surface GetSurface(float4 baseColor, float3 normal, float3 worldPos, float3 spec
 {
     Surface s;
 
-    s.baseColor = baseColor;
-    s.normal = normal;
-    s.alpha = baseColor.a;
-    s.viewDir = normalize(_WorldSpaceCameraPos - worldPos);
-    s.shininess = shininess;
-    s.specColor = specColor;
-    s.metallic = metallic;
-    s.roughness = roughness;
+    s.baseColor     = baseColor;
+    s.normal        = normal;
+    s.alpha         = baseColor.a;
+    s.viewDir       = normalize(_WorldSpaceCameraPos - worldPos);
+    s.shininess     = shininess;
+    s.specColor     = specColor;
+    s.metallic      = metallic;
+    s.roughness     = roughness;
     
     return s;
 }

@@ -26,9 +26,9 @@ Light GetDirectionalLight(int index)
 {
     Light light = (Light)0;
 
-    light.attenuation = 1.0f;
-    light.lightColor = _DirectionalLightsColor[index];
-    light.lightDirection = _DirectionaLightsDir[index];
+    light.attenuation       = 1.0f;
+    light.lightColor        = _DirectionalLightsColor[index];
+    light.lightDirection    = normalize(_DirectionaLightsDir[index]);
 
     return light;
 }
