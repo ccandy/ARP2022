@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
-
+            
 public class LightRender
 {
     
-    private int DirectionalLightsDirId = Shader.PropertyToID("_DirectionaLightsDir");
-    private int DirectionalLightsColorId = Shader.PropertyToID("_DirectionalLightsColor");
-    private int DirectonalLightAccountId = Shader.PropertyToID("_DirectionalLightCount");
+    private int DirectionalLightsDirId      = Shader.PropertyToID("_DirectionaLightsDir");
+    private int DirectionalLightsColorId    = Shader.PropertyToID("_DirectionalLightsColor");
+    private int DirectonalLightAccountId    = Shader.PropertyToID("_DirectionalLightCount");
     
-    private const string bufferName = "LightBuffer";
+    private const string bufferName         = "LightBuffer";
     private const int MAX_DIRECTIONS_LIGHTS = 4;
-    private Vector4[] DirectionaLightsDir = new Vector4[MAX_DIRECTIONS_LIGHTS];
+    private Vector4[] DirectionaLightsDir   = new Vector4[MAX_DIRECTIONS_LIGHTS];
     private Vector4[] DirectionaLightsColor = new Vector4[MAX_DIRECTIONS_LIGHTS];
     
     private CommandBuffer cmd;
@@ -57,7 +57,7 @@ public class LightRender
             return;
         }
         DirectionaLightsColor[directionalLightCount] = visibleLight.finalColor;
-        DirectionaLightsDir[directionalLightCount] = -visibleLight.localToWorldMatrix.GetColumn(2);
+        DirectionaLightsDir[directionalLightCount]      = -visibleLight.localToWorldMatrix.GetColumn(2);
     }
 
     private void CleanUp()

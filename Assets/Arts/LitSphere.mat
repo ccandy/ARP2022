@@ -11,8 +11,12 @@ Material:
   m_Shader: {fileID: 4800000, guid: dd9268e04298d4a7395d6ccdaf1894fd, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_ValidKeywords:
+  - ARP_PBR_ON
+  m_InvalidKeywords:
+  - ARP_BLINNPHONG_ON
+  - ARP_BlinnPhong
+  - _ARP_BLINNPHONG_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -61,6 +65,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - ARP_BlinnPhong: 0
+    - ARP_BlinnPhong_ON: 1
+    - ARP_PBR: 1
+    - _ARP_BlinnPhong: 1
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -68,11 +76,12 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Metallic: 0
+    - _Metallic: 0.114
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Shininess: 11.6
+    - _Roughness: 0.389
+    - _Shininess: 4.88
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
