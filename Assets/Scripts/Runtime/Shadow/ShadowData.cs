@@ -2,17 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ShadowData : MonoBehaviour
+public class ShadowGlobalData
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public float ShadowDistance;
+}
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+public class DirectionalShadowData
+{
+    public float ShadowStrength;
+    public float ShadowNearPlane;
+    public float ShadowBias;
 }
