@@ -5,6 +5,9 @@ using UnityEngine;
 public class ShadowGlobalData
 {
     public float ShadowDistance;
+    public int ShadowMapDepth;
+    public int CascadeCount;
+    public int ShadowMapSize;
 }
 
 public class DirectionalShadowData
