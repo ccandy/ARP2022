@@ -54,6 +54,7 @@ Shader "ARP/Lit"
             
             ColorMask 0
             HLSLPROGRAM
+            #include "Lib/Common.hlsl"
             
             #pragma vertex ShadowCasterVertex
             #pragma fragment ShadowCasterFrag

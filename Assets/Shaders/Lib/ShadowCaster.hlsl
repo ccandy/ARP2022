@@ -24,18 +24,18 @@ VertexOutput ShadowCasterVertex( VertexInput input )
 {
     VertexOutput output;
 
-    float3 worldPos = TransformObjectToWorld(input.PositionOS.xyz);
-    output.PositionCS = TransformWorldToHClip(worldPos);
-    output.uv = TRANSFORM_TEX(input.uv,_MainTex);
+    float3 worldPos         = TransformObjectToWorld(input.PositionOS.xyz);
+    output.PositionCS       = TransformWorldToHClip(worldPos);
+    output.uv               = TRANSFORM_TEX(input.uv,_MainTex);
     return output;
 }
 
 
 float4 ShadowCasterFrag( VertexOutput input ) :SV_TARGET
 {
-    float4 baseMap = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
-    float4 color = _Color;
-    float4 baseColor = baseMap * color;
+    float4 baseMap      = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+    float4 color        = _Color;
+    float4 baseColor    = baseMap * color;
     #if defined(_CLIPPING)
         clip(baseColor.a - _CutOff);
     #endif
