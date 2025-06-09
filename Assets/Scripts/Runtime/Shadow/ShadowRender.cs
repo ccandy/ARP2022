@@ -58,9 +58,11 @@ public class ShadowRender
             Debug.LogErrorFormat("DirectionalShadowData at {0} is null", index);
             return;
         }
+
+        int shadowmapSize = (int) GlobalShadowData.ShadowMapSize; 
         
         
-        GetShadowMap(ref context, CascadeShadowDatasID, GlobalShadowData.ShadowMapSize, GlobalShadowData.ShadowMapDepth );    
+        GetShadowMap(ref context, CascadeShadowDatasID, shadowmapSize, GlobalShadowData.ShadowMapDepth);    
     }
     
 
@@ -73,6 +75,9 @@ public class ShadowRender
         }
         
         ShadowBuffer.GetTemporaryRT(shadowmapID, shadowmapSize, shadowmapSize, shadowmapDepth, FilterMode.Bilinear);
+        
+        
+        
     }
     
     
