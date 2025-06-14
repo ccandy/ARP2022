@@ -2,17 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ShadowConstants : MonoBehaviour
+public static class ShadowConstants 
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public readonly static int MAX_DIRECTIONS_SHADOW_LIGHTS          = 4;
+    public readonly static int MAX_CASACDE_COUNT                     = 4;
 }
