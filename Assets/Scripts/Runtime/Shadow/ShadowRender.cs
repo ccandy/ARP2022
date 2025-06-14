@@ -47,7 +47,7 @@ public class ShadowRender
         {
             ShadowStrength  = visibleLight.light.shadowStrength,
             ShadowBias      = visibleLight.light.shadowBias,
-            ShadowNearPlane = visibleLight.light.shadowNearPlane
+            ShadowNearPlane = visibleLight.light.shadowNearPlane,
         };
     }
 
@@ -72,7 +72,7 @@ public class ShadowRender
     private void RenderShadowCascade(ref ScriptableRenderContext context, CommandBuffer commandBuffer, ref CullingResults cullingResults, 
         ref ShadowGlobalData shadowGlobalData, int index)
     {
-        DirectionalShadowData _directionalShadowData = _directionalShadowDatas[index];
+        ref DirectionalShadowData _directionalShadowData = ref _directionalShadowDatas[index];
         if (_directionalShadowData == null)
         {
             Debug.LogErrorFormat("DirectionalShadowData at {0} is null", index);
@@ -89,9 +89,9 @@ public class ShadowRender
         Matrix4x4 projectionMatrix  = Matrix4x4.identity;
         Vector3 cascadeRatio        = shadowGlobalData.CascadeRaito;
         float nearPlane             = _directionalShadowData.ShadowNearPlane;
-        
+        float shadowBias            = _directionalShadowData.ShadowBias;
         var shadowSettings =
-            new ShadowDrawingSettings(cullingResults, index);
+            new ShadowDrawingSettings(cullingResults, index,BatchCullingProjectionType.Orthographic);
 
 
         for (int n = 0; n < cascadeCount; n++)
@@ -115,10 +115,13 @@ public class ShadowRender
                 cullingSphere.w *= cullingSphere.w;
                 cullingSpheres[n] = cullingSphere;
             }
-
             Vector2 offset = ShadowUtil.GetViewOffset(index, cascadeSplit);
+            Matrix4x4 worldToViewMatrix = ShadowUtil.GetWorldToShadowMatrix(viewMatrix, projectionMatrix,cascadeSplit, offset);
+            _directionalShadowData.ShadowMatrix = worldToViewMatrix;
             ShadowUtil.SetViewPort(ref context, commandBuffer, offset, tileSize);
-            
+            ShadowUtil.SetShadowBias(ref context, commandBuffer, shadowBias);
+            context.DrawShadows(ref shadowSettings);
+            ShadowUtil.SetShadowBias(ref context, commandBuffer, 0);
         }
     }
     
