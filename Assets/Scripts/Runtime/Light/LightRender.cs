@@ -12,9 +12,9 @@ public class LightRender
     private int DirectonalLightAccountId    = Shader.PropertyToID("_DirectionalLightCount");
     
     private const string bufferName         = "LightBuffer";
-    private const int MAX_DIRECTIONS_LIGHTS = 4;
-    private Vector4[] DirectionaLightsDir   = new Vector4[MAX_DIRECTIONS_LIGHTS];
-    private Vector4[] DirectionaLightsColor = new Vector4[MAX_DIRECTIONS_LIGHTS];
+    
+    private Vector4[] DirectionaLightsDir   = new Vector4[LightConstants.MAX_DIRECTIONAL_LIGHTS];
+    private Vector4[] DirectionaLightsColor = new Vector4[LightConstants.MAX_DIRECTIONAL_LIGHTS];
     
     private CommandBuffer cmd;
     private int directionalLightCount;
@@ -31,6 +31,7 @@ public class LightRender
     public void Render(ScriptableRenderContext context, ref CullingResults cullingResults)
     {
         directionalLightCount = 0;
+        int maxDirectionalLightCount = LightConstants.MAX_DIRECTIONAL_LIGHTS;
         
         NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
         for (int i = 0; i < visibleLights.Length; ++i)
@@ -38,7 +39,7 @@ public class LightRender
             VisibleLight visibleLight = visibleLights[i];
             if (visibleLight.lightType == LightType.Directional)
             {
-                if (directionalLightCount < MAX_DIRECTIONS_LIGHTS)
+                if (directionalLightCount < maxDirectionalLightCount)
                 {
                     ConfigDirectionalLightData(visibleLight, directionalLightCount);
                     directionalLightCount++;
