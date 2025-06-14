@@ -37,7 +37,5 @@ public class DirectionalShadowData
     public float ShadowStrength;
     public float ShadowNearPlane;
     public float ShadowBias;
-    
-    
-    
+    public Matrix4x4 ShadowMatrix;
 }

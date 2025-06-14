@@ -59,7 +59,11 @@ public static class ShadowUtil
       context.ExecuteCommandBuffer(cmd);
       cmd.Clear();
    }
-   
-   
+
+   public static void SetShadowBias(ref ScriptableRenderContext context, CommandBuffer cmd, float bias)
+   {
+      cmd.SetGlobalDepthBias(0f,bias);
+      ExecuteCommandBuffer(ref context, cmd);
+   }
    
 }
