@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [System.Serializable]
 public class ShadowGlobalData
@@ -24,7 +25,9 @@ public class ShadowGlobalData
         _2 = 2,
         _4 = 4
     }
-    public CascadeAmount CascadeCount = CascadeAmount._1;
+    public CascadeAmount CascadeCount   = CascadeAmount._1;
+    public Vector3 CascadeRaito        = new Vector3(0.1f, 0.25f, 0.5f);
+    
 }
 
 
@@ -34,4 +37,7 @@ public class DirectionalShadowData
     public float ShadowStrength;
     public float ShadowNearPlane;
     public float ShadowBias;
+    
+    
+    
 }
