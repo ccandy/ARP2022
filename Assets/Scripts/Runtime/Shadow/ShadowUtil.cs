@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public static class ShadowUtil
 {
@@ -38,4 +39,18 @@ public static class ShadowUtil
       m.m23 = 0.5f * (m.m23 + m.m33);
       return m;
    }
+
+   public static Vector2 GetViewOffset(int index, int split)
+   {
+      return new Vector2(index % split, index / split);
+   }
+
+   public static void SetViewPort(CommandBuffer cmd,Vector2 offset, float tileSize)
+   {
+      cmd.SetViewport(new Rect(
+         offset.x * tileSize, offset.y * tileSize, tileSize, tileSize
+      ));
+   }
+   
+   
 }
