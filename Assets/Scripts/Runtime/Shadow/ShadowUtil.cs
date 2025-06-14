@@ -45,12 +45,21 @@ public static class ShadowUtil
       return new Vector2(index % split, index / split);
    }
 
-   public static void SetViewPort(CommandBuffer cmd,Vector2 offset, float tileSize)
+   public static void SetViewPort(ref ScriptableRenderContext context, CommandBuffer cmd,Vector2 offset, float tileSize)
    {
       cmd.SetViewport(new Rect(
          offset.x * tileSize, offset.y * tileSize, tileSize, tileSize
       ));
+      
+      ExecuteCommandBuffer(ref context, cmd);
    }
+
+   public static void ExecuteCommandBuffer(ref ScriptableRenderContext context , CommandBuffer cmd)
+   {
+      context.ExecuteCommandBuffer(cmd);
+      cmd.Clear();
+   }
+   
    
    
 }

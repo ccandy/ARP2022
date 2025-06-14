@@ -10,19 +10,13 @@ public class ShadowRender
     private int DirectionalShadowDatasID                    = Shader.PropertyToID("_DirectionalShadowDatas");
     private int CascadeShadowDatasID                        = Shader.PropertyToID("_CascadeShadowMap");
     
-    
     private const string bufferName                         = "ShadowBuffer";
-    
-    
     
     private CommandBuffer ShadowBuffer;
     
-
     public ShadowGlobalData GlobalShadowData                    = new ShadowGlobalData();
     private DirectionalShadowData[] _directionalShadowDatas     = new DirectionalShadowData[ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS];
     private Vector4[] cullingSpheres                            = new Vector4[ShadowConstants.MAX_CASACDE_COUNT];
-    
-    private Matrix4x4[] ShadowToWorldCascadeMats                = new Matrix4x4[ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS];
     
     private int cascadeTileCount                                = 0;
     private int cascadeSplit                                    = 0;
@@ -98,8 +92,8 @@ public class ShadowRender
         
         var shadowSettings =
             new ShadowDrawingSettings(cullingResults, index);
-        
-        
+
+
         for (int n = 0; n < cascadeCount; n++)
         {
             cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives
@@ -115,13 +109,17 @@ public class ShadowRender
                 out ShadowSplitData splitData
             );
             shadowSettings.splitData = splitData;
-            
-            
-            
+            if (index == 0)
+            {
+                Vector4 cullingSphere = splitData.cullingSphere;
+                cullingSphere.w *= cullingSphere.w;
+                cullingSpheres[n] = cullingSphere;
+            }
+
+            Vector2 offset = ShadowUtil.GetViewOffset(index, cascadeSplit);
+            ShadowUtil.SetViewPort(ref context, commandBuffer, offset, tileSize);
             
         }
-        
-        
     }
     
 
