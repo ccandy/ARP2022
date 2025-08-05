@@ -10,6 +10,6 @@ public class ARPAsset:RenderPipelineAsset
     
     protected override RenderPipeline CreatePipeline()
     {
-        return new ARenderPipeline();
+        return new ARenderPipeline(shadowGlobalData);
     }
 }

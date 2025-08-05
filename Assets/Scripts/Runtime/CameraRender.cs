@@ -34,8 +34,10 @@ public class CameraRender
    
    
    private LightRender _lightRender = new LightRender();
+   private ShadowRender _shadowRender = new ShadowRender(); 
    
-   public void Render(ScriptableRenderContext context, Camera camera)
+   
+   public void Render(ScriptableRenderContext context, Camera camera, ShadowGlobalData shadowGlobalData)
    {
       this.context = context;
       _camera = camera;
