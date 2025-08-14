@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
             
@@ -18,8 +19,9 @@ public class LightRender
     
     private CommandBuffer cmd;
     private int directionalLightCount;
-    
 
+    private ShadowRender shadowRender       = new ShadowRender();
+    
     public LightRender()
     {
         cmd = new CommandBuffer()
@@ -30,9 +32,14 @@ public class LightRender
 
     public void Render(ScriptableRenderContext context, ref CullingResults cullingResults)
     {
+        SendToGPU(context, cmd);
+        CleanUp();
+    }
+
+    public void SetupDirectionalLightData(ScriptableRenderContext context, ref CullingResults cullingResults)
+    {
         directionalLightCount = 0;
         int maxDirectionalLightCount = LightConstants.MAX_DIRECTIONAL_LIGHTS;
-        
         NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
         for (int i = 0; i < visibleLights.Length; ++i)
         {
@@ -46,11 +53,9 @@ public class LightRender
                 }
             }
         }
-
-        SendToGPU(context, cmd);
-        CleanUp();
     }
-
+    
+    
     private void ConfigDirectionalLightData(VisibleLight visibleLight, int count)
     {
         if (visibleLight == null || count < 0)

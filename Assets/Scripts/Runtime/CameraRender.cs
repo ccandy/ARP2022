@@ -56,6 +56,7 @@ public class CameraRender
          return;
       }
       Setup();
+      _lightRender.SetupDirectionalLightData(context, ref _cullingResults);
       _lightRender.Render(context, ref _cullingResults);
       DrawVisibleGeometry(this._camera);
       DrawUnsupportedGeometry(this._camera);
