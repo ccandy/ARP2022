@@ -55,9 +55,15 @@ public class CameraRender
       {
          return;
       }
+      
+      
+      _shadowRender.ConfigShadowLightData(ref _cullingResults);
+      _shadowRender.Render(ref context, ref _cullingResults, ref shadowGlobalData);
+      
+      _lightRender.SetupLightData(context, ref _cullingResults);
+      _lightRender.Render(context, ref _cullingResults,ref shadowGlobalData);
+      
       Setup();
-      _lightRender.SetupDirectionalLightData(context, ref _cullingResults);
-      _lightRender.Render(context, ref _cullingResults);
       DrawVisibleGeometry(this._camera);
       DrawUnsupportedGeometry(this._camera);
       DrawGizmos();

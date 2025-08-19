@@ -16,11 +16,12 @@ public class LightRender
     
     private Vector4[] DirectionaLightsDir   = new Vector4[LightConstants.MAX_DIRECTIONAL_LIGHTS];
     private Vector4[] DirectionaLightsColor = new Vector4[LightConstants.MAX_DIRECTIONAL_LIGHTS];
+    private ShadowRender _shadowRender      = new ShadowRender();
     
     private CommandBuffer cmd;
     private int directionalLightCount;
 
-    private ShadowRender shadowRender       = new ShadowRender();
+   
     
     public LightRender()
     {
@@ -30,31 +31,33 @@ public class LightRender
         };
     }
 
-    public void Render(ScriptableRenderContext context, ref CullingResults cullingResults)
+    public void Render(ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
     {
+        //_shadowRender.Render(ref context, ref cullingResults, ref shadowGlobalData);
+        
         SendToGPU(context, cmd);
-        CleanUp();
+        CleanUp(ref context);
     }
 
-    public void SetupDirectionalLightData(ScriptableRenderContext context, ref CullingResults cullingResults)
+
+    public void SetupLightData(ScriptableRenderContext context, ref CullingResults cullingResults)
     {
-        directionalLightCount = 0;
-        int maxDirectionalLightCount = LightConstants.MAX_DIRECTIONAL_LIGHTS;
+        directionalLightCount                   = 0;
+        int maxDirectionalLightCount            = LightConstants.MAX_DIRECTIONAL_LIGHTS;
         NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
         for (int i = 0; i < visibleLights.Length; ++i)
         {
             VisibleLight visibleLight = visibleLights[i];
             if (visibleLight.lightType == LightType.Directional)
             {
-                if (directionalLightCount < maxDirectionalLightCount)
-                {
-                    ConfigDirectionalLightData(visibleLight, directionalLightCount);
-                    directionalLightCount++;
-                }
+                ConfigDirectionalLightData(visibleLight, directionalLightCount);
+               // _shadowRender.ConfigShadowDirectionalLightData(ref visibleLight, i);
+                directionalLightCount++;
             }
         }
+        _shadowRender.UpdateShadowData();
+        
     }
-    
     
     private void ConfigDirectionalLightData(VisibleLight visibleLight, int count)
     {
@@ -66,10 +69,11 @@ public class LightRender
         DirectionaLightsDir[directionalLightCount]      = -visibleLight.localToWorldMatrix.GetColumn(2);
     }
 
-    private void CleanUp()
+    private void CleanUp(ref ScriptableRenderContext context)
     {
         System.Array.Clear(DirectionaLightsDir, 0, DirectionaLightsDir.Length);
         System.Array.Clear(DirectionaLightsColor, 0, DirectionaLightsColor.Length);
+        _shadowRender.CleanUP(ref context);
     }
     
     private void SendToGPU(ScriptableRenderContext context, CommandBuffer cmd)
