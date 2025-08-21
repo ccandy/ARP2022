@@ -85,9 +85,7 @@ public class ShadowRender
     {
         NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
 
-        int shadowmapSize =(int)shadowGlobalData.ShadowMapSize;
-        GetShadowMap(ref context, CascadeShadowMapID, shadowmapSize, GlobalShadowData.ShadowMapDepth);
-        RenderUtil.SetupRenderTarget(ref context, CascadeShadowMapID, ShadowBuffer);
+       
         for (int i = 0; i < visibleLights.Length; ++i)
         {
             VisibleLight visibleLight = visibleLights[i];
@@ -114,6 +112,9 @@ public class ShadowRender
         int tileSize        = shadowmapSize / cascadeTileCount;
         
         int cascadeCount = (int)shadowGlobalData.CascadeCount;
+        
+        GetShadowMap(ref context, CascadeShadowMapID, shadowmapSize, GlobalShadowData.ShadowMapDepth);
+        RenderUtil.SetupRenderTarget(ref context, CascadeShadowMapID, ShadowBuffer);
         
         Matrix4x4 viewMatrix        = Matrix4x4.identity;
         Matrix4x4 projectionMatrix  = Matrix4x4.identity;
@@ -155,6 +156,32 @@ public class ShadowRender
         }
     }
     
+    public void SendToGPU(ScriptableRenderContext context)
+    {
+        int maxDirShadow                = ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS;
+        Matrix4x4[] worldToShadowMat    = new Matrix4x4[maxDirShadow];
+        Vector4[] dirShadowData         = new Vector4[maxDirShadow];
+
+        for (int n = 0; n < maxDirShadow; n++)
+        { 
+            DirectionalShadowData data  = _directionalShadowDatas[n];
+            worldToShadowMat[n]         = data.ShadowMatrix;
+
+            Vector4 dsd                 = new Vector4();
+            dsd.x                       = data.ShadowStrength;
+            dsd.y                       = data.ShadowBias;
+            dsd.z                       = data.ShadowNearPlane;
+            
+            dirShadowData[n]            = dsd;
+        }
+        
+        ShadowBuffer.SetGlobalVectorArray(DirectionalShadowDatasID, dirShadowData);
+        ShadowBuffer.SetGlobalMatrixArray(ShadowToWorldCascadeMatID, worldToShadowMat);
+        
+        context.ExecuteCommandBuffer(ShadowBuffer);
+        ShadowBuffer.Clear();
+    }
+
 
     private void GetShadowMap(ref ScriptableRenderContext context, int shadowmapID, int shadowmapSize, int shadowmapDepth)
     {
@@ -164,13 +191,14 @@ public class ShadowRender
             return;
         }
         RenderUtil.GetRenderTexture(ref context, shadowmapID, shadowmapSize, shadowmapSize, shadowmapDepth, 
-            ShadowBuffer, FilterMode.Bilinear, RenderTextureFormat.Shadowmap );
+            ShadowBuffer, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         
     }
 
     public void CleanUP(ref ScriptableRenderContext context)
     {
         RenderUtil.ReleaseRenderTexture(ref context, ShadowBuffer, CascadeShadowMapID);
+        cascadeTileCount = 0;
     }
     
     

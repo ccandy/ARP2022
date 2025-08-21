@@ -56,10 +56,6 @@ public class CameraRender
          return;
       }
       
-      
-      _shadowRender.ConfigShadowLightData(ref _cullingResults);
-      _shadowRender.Render(ref context, ref _cullingResults, ref shadowGlobalData);
-      
       _lightRender.SetupLightData(context, ref _cullingResults);
       _lightRender.Render(context, ref _cullingResults,ref shadowGlobalData);
       
