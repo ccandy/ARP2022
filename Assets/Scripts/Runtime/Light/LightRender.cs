@@ -33,8 +33,10 @@ public class LightRender
 
     public void Render(ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
     {
-        //_shadowRender.Render(ref context, ref cullingResults, ref shadowGlobalData);
+        _shadowRender.Render(ref context, ref cullingResults, ref shadowGlobalData);
         
+        
+        _shadowRender.SendToGPU(context);
         SendToGPU(context, cmd);
         CleanUp(ref context);
     }
@@ -50,8 +52,8 @@ public class LightRender
             VisibleLight visibleLight = visibleLights[i];
             if (visibleLight.lightType == LightType.Directional)
             {
-                ConfigDirectionalLightData(visibleLight, directionalLightCount);
-               // _shadowRender.ConfigShadowDirectionalLightData(ref visibleLight, i);
+                ConfigDirectionalLightData(visibleLight, directionalLightCount); 
+                _shadowRender.ConfigShadowDirectionalLightData(ref visibleLight, i);
                 directionalLightCount++;
             }
         }
