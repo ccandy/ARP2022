@@ -11,9 +11,6 @@ public class RenderUtil
         cmd.ClearRenderTarget(true,false, Color.clear);
         context.ExecuteCommandBuffer(cmd);
         cmd.Clear();
-        
-       // var depthRT = new RenderTargetIdentifier(renderTargetId);
-       // CoreUtils.SetRenderTarget(cmd, depthRT, depthRT, ClearFlag.Depth, Color.clear);
     }
 
     public static void GetRenderTexture(ref ScriptableRenderContext context, int renderTextureID, int width, int height, 
@@ -28,8 +25,8 @@ public class RenderUtil
         }
         
         cmd.GetTemporaryRT(renderTextureID, width, height, depth, filterMode, format);
-        /*context.ExecuteCommandBuffer(cmd);
-        cmd.Clear();*/
+        context.ExecuteCommandBuffer(cmd);
+        cmd.Clear();
     }
 
     public static void ReleaseRenderTexture(ref ScriptableRenderContext context, CommandBuffer cmd, int renderTextureID)
