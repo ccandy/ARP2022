@@ -18,7 +18,7 @@ public class ShadowRender
     private DirectionalShadowData[] _directionalShadowDatas     = new DirectionalShadowData[ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS];
     private Vector4[] cullingSpheres                            = new Vector4[ShadowConstants.MAX_CASACDE_COUNT];
     
-    private int cascadeTileCount                                = 0;
+    private int dirShadowCount                                  = 0;
     private int cascadeSplit                                    = 0;
     
     public ShadowRender()
@@ -53,7 +53,7 @@ public class ShadowRender
 
     public void ConfigShadowLightData(ref CullingResults cullingResults)//, ref ShadowGlobalData shadowGlobalData)
     {
-        cascadeTileCount = 0;
+        dirShadowCount = 0;
         NativeArray<VisibleLight> visibleLights  = cullingResults.visibleLights;
         int visibleLightCount = visibleLights.Length;
         
@@ -64,21 +64,21 @@ public class ShadowRender
             if (visibleLight.lightType == LightType.Directional)
             {
                 SetupShadowData(ref visibleLight, i);
-                cascadeTileCount++;
+                dirShadowCount++;
             }
         }
-        cascadeSplit = ShadowUtil.GetSplit(cascadeTileCount);
+        cascadeSplit = ShadowUtil.GetSplit(dirShadowCount);
     }
 
     public void ConfigShadowDirectionalLightData(ref VisibleLight visibleLight, int index)
     {
         SetupShadowData(ref visibleLight, index);
-        cascadeTileCount++;
+        dirShadowCount++;
     }
 
     public void UpdateShadowData()
     {
-        cascadeSplit = ShadowUtil.GetSplit(cascadeTileCount);
+        cascadeSplit = ShadowUtil.GetSplit(dirShadowCount);
     }
     
     public void Render(ref ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
@@ -109,7 +109,7 @@ public class ShadowRender
         }
         
         int shadowmapSize   = (int) shadowGlobalData.ShadowMapSize;
-        int tileSize        = shadowmapSize / cascadeTileCount;
+        int tileSize        = shadowmapSize / dirShadowCount;
         
         int cascadeCount = (int)shadowGlobalData.CascadeCount;
         
@@ -162,7 +162,7 @@ public class ShadowRender
         Matrix4x4[] worldToShadowMat    = new Matrix4x4[maxDirShadow];
         Vector4[] dirShadowData         = new Vector4[maxDirShadow];
 
-        for (int n = 0; n < maxDirShadow; n++)
+        for (int n = 0; n < dirShadowCount; n++)
         { 
             DirectionalShadowData data  = _directionalShadowDatas[n];
             worldToShadowMat[n]         = data.ShadowMatrix;
@@ -198,7 +198,7 @@ public class ShadowRender
     public void CleanUP(ref ScriptableRenderContext context)
     {
         RenderUtil.ReleaseRenderTexture(ref context, ShadowBuffer, CascadeShadowMapID);
-        cascadeTileCount = 0;
+        dirShadowCount = 0;
     }
     
     
