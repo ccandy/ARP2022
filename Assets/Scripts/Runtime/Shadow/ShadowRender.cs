@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UI;
 
 public class ShadowRender 
 {
     private int ShadowToWorldCascadeMatID                   = Shader.PropertyToID("_ShadowToWorldCascadeMat");
     private int DirectionalShadowDatasID                    = Shader.PropertyToID("_DirectionalShadowDatas");
+    private int CullSphereDatasID                           = Shader.PropertyToID("_CullSphereDatas");
     private int CascadeShadowMapID                          = Shader.PropertyToID("_CascadeShadowMap");
+    private int CascadeCountID                              = Shader.PropertyToID("_CascadeCount");    
     
     private const string bufferName                         = "ShadowBuffer";
     
@@ -156,7 +159,7 @@ public class ShadowRender
         }
     }
     
-    public void SendToGPU(ScriptableRenderContext context)
+    public void SendToGPU(ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
     {
         int maxDirShadow                = ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS;
         Matrix4x4[] worldToShadowMat    = new Matrix4x4[maxDirShadow];
@@ -174,9 +177,13 @@ public class ShadowRender
             
             dirShadowData[n]            = dsd;
         }
+
+        int cascadeCount = (int)shadowGlobalData.CascadeCount;
         
         ShadowBuffer.SetGlobalVectorArray(DirectionalShadowDatasID, dirShadowData);
         ShadowBuffer.SetGlobalMatrixArray(ShadowToWorldCascadeMatID, worldToShadowMat);
+        ShadowBuffer.SetGlobalVectorArray(CullSphereDatasID, cullingSpheres);
+        ShadowBuffer.SetGlobalInt(CascadeCountID, cascadeCount);
         
         context.ExecuteCommandBuffer(ShadowBuffer);
         ShadowBuffer.Clear();

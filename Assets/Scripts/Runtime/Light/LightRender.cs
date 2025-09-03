@@ -36,7 +36,7 @@ public class LightRender
         _shadowRender.Render(ref context, ref cullingResults, ref shadowGlobalData);
         
         
-        _shadowRender.SendToGPU(context);
+        _shadowRender.SendToGPU(context, ref shadowGlobalData);
         SendToGPU(context, cmd);
         CleanUp(ref context);
     }
