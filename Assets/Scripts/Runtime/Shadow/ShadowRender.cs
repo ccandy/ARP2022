@@ -126,8 +126,8 @@ public class ShadowRender
         float shadowBias            = _directionalShadowData.ShadowBias;
         var shadowSettings =
             new ShadowDrawingSettings(cullingResults, index,BatchCullingProjectionType.Orthographic);
-
-
+        int tileOffset              = index * cascadeCount;
+    
         for (int n = 0; n < cascadeCount; n++)
         {
             cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives
@@ -145,13 +145,14 @@ public class ShadowRender
             shadowSettings.splitData = splitData;
             if (index == 0)
             {
-                Vector4 cullingSphere = splitData.cullingSphere;
-                cullingSphere.w *= cullingSphere.w;
-                cullingSpheres[n] = cullingSphere;
+                Vector4 cullingSphere   = splitData.cullingSphere;
+                cullingSphere.w         *= cullingSphere.w;
+                cullingSpheres[n]       = cullingSphere;
             }
-            Vector2 offset = ShadowUtil.GetViewOffset(index, cascadeSplit);
-            Matrix4x4 worldToViewMatrix = ShadowUtil.GetWorldToShadowMatrix(viewMatrix, projectionMatrix,cascadeSplit, offset);
+            Vector2 offset                      = ShadowUtil.GetViewOffset(index, cascadeSplit);
+            Matrix4x4 worldToViewMatrix         = ShadowUtil.GetWorldToShadowMatrix(viewMatrix, projectionMatrix,cascadeSplit, offset);
             _directionalShadowData.ShadowMatrix = worldToViewMatrix;
+            _directionalShadowData.TileIndex    = tileOffset + n;
             ShadowUtil.SetViewPort(ref context, ShadowBuffer, offset, tileSize);
             ShadowUtil.SetShadowBias(ref context, ShadowBuffer, shadowBias);
             context.DrawShadows(ref shadowSettings);
@@ -174,6 +175,7 @@ public class ShadowRender
             dsd.x                       = data.ShadowStrength;
             dsd.y                       = data.ShadowBias;
             dsd.z                       = data.ShadowNearPlane;
+            dsd.w                       = data.TileIndex;
             
             dirShadowData[n]            = dsd;
         }
