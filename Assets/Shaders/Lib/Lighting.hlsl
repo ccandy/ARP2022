@@ -60,9 +60,10 @@ half3 GetIncomingLightsColors(Surface surface)
             #endif
         #endif
         
-        half shadowAtten    = GetDirectionalShadowAtten(n, surface);
-        half3 lightColor    = (diffuse + specular) * light.lightColor * surface.baseColor * shadowAtten;
-        res += lightColor;
+        half shadowAtten        = GetDirectionalShadowAtten(n, surface);
+        half3 lightIntensity    = light.lightColor * shadowAtten;
+        half3 finalCol          = (diffuse * surface.baseColor + specular) * lightIntensity;
+        res += finalCol;
     }
     return res;
 }

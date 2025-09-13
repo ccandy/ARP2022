@@ -85,8 +85,9 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
     float4 shadowPos                    = mul(shadowToWorldCascadeMat,float4(worldpos,1));
     shadowPos.xyz                       /= shadowPos.w;
     half shadowAtten                    = SampleCascadeShadowmap(shadowPos.xyz);
-
-    return shadowAtten;
+    half shadowStrength                 = dirShadowData.strength;
+    
+    return lerp(1 , shadowAtten, shadowStrength);
     
 }
 

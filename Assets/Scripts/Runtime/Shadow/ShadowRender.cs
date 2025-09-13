@@ -180,12 +180,12 @@ public class ShadowRender
                 worldToShadowMat[matIndex]          = matrices[j];
             }
             
-            Vector4 dsd                 = new Vector4();
-            dsd.x                       = data.ShadowStrength;
-            dsd.y                       = data.ShadowBias;
-            dsd.z                       = data.ShadowNearPlane;
-            dsd.w                       = data.TileIndex;
-            
+            Vector4 dsd                     = new Vector4();
+            dsd.x                           = data.ShadowStrength;
+            dsd.y                           = data.ShadowBias;
+            dsd.z                           = data.ShadowNearPlane;
+            dsd.w                           = data.TileIndex;
+            dirShadowData[i]                = dsd;
         }
         
         ShadowBuffer.SetGlobalVectorArray(DirectionalShadowDatasID, dirShadowData);
