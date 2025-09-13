@@ -76,10 +76,12 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
     }
     
     DirectionalShadowData dirShadowData = GetDirectionalShadowData(lightindex, surface);
-    int cascadeindex                    = dirShadowData.CascadeIndex;
+    const int cascadeindex              = dirShadowData.CascadeIndex;
     
     int tileindex                       = lightindex + cascadeindex;
     float4x4 shadowToWorldCascadeMat    = _ShadowToWorldCascadeMat[tileindex];
+
+    const float3 worldpos               = surface.worldPos;
     float4 shadowPos                    = mul(shadowToWorldCascadeMat,float4(worldpos,1));
     shadowPos.xyz                       /= shadowPos.w;
     half shadowAtten                    = SampleCascadeShadowmap(shadowPos.xyz);

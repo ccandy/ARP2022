@@ -87,21 +87,25 @@ public class ShadowRender
     public void Render(ref ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
     {
         NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
+        int shadowmapSize   = (int) shadowGlobalData.ShadowMapSize;
+        int tileSize        = shadowmapSize / dirShadowCount;
 
-       
+        GetShadowMap(ref context, CascadeShadowMapID, shadowmapSize, GlobalShadowData.ShadowMapDepth);
+        RenderUtil.SetupRenderTarget(ref context, CascadeShadowMapID, ShadowBuffer);
+        
         for (int i = 0; i < visibleLights.Length; ++i)
         {
             VisibleLight visibleLight = visibleLights[i];
             if (visibleLight.lightType == LightType.Directional)
             {
-                RenderShadowCascade(ref context, ref cullingResults, ref shadowGlobalData, i);
+                RenderShadowCascade(ref context, ref cullingResults, ref shadowGlobalData, i,tileSize);
             }
         }
     }
     
     
     private void RenderShadowCascade(ref ScriptableRenderContext context,ref CullingResults cullingResults, 
-        ref ShadowGlobalData shadowGlobalData, int index)
+        ref ShadowGlobalData shadowGlobalData, int index, int tileSize)
     {
         ref DirectionalShadowData _directionalShadowData = ref _directionalShadowDatas[index];
         if (_directionalShadowData == null)
@@ -110,13 +114,7 @@ public class ShadowRender
             return;
         }
         
-        int shadowmapSize   = (int) shadowGlobalData.ShadowMapSize;
-        int tileSize        = shadowmapSize / dirShadowCount;
-        
         int cascadeCount = (int)shadowGlobalData.CascadeCount;
-        
-        GetShadowMap(ref context, CascadeShadowMapID, shadowmapSize, GlobalShadowData.ShadowMapDepth);
-        RenderUtil.SetupRenderTarget(ref context, CascadeShadowMapID, ShadowBuffer);
         
         Matrix4x4 viewMatrix        = Matrix4x4.identity;
         Matrix4x4 projectionMatrix  = Matrix4x4.identity;
@@ -125,8 +123,7 @@ public class ShadowRender
         float shadowBias            = _directionalShadowData.ShadowBias;
         var shadowSettings =
             new ShadowDrawingSettings(cullingResults, index,BatchCullingProjectionType.Orthographic);
-        int tileOffset              = index * cascadeCount;
-    
+        
         for (int n = 0; n < cascadeCount; n++)
         {
             cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives
@@ -159,7 +156,7 @@ public class ShadowRender
             
             Matrix4x4 worldToViewMatrix                         = ShadowUtil.GetWorldToShadowMatrix(viewMatrix, projectionMatrix,cascadeSplit, offset);
             int tileIndex                                       = index * tileSize + n;
-            _directionalShadowData.ShadowMatrix[tileIndex]      = worldToViewMatrix;
+            _directionalShadowData.ShadowMatrix[n]              = worldToViewMatrix;
             _directionalShadowData.TileIndex                    = tileIndex;
         }
     }
@@ -179,8 +176,8 @@ public class ShadowRender
             Matrix4x4[] matrices        = data.ShadowMatrix;
             for (int j = 0; j < cascadeCount; j++)
             {
-                
-                worldToShadowMat[j]         = matrices[j];
+                int matIndex                        = i + j;
+                worldToShadowMat[matIndex]          = matrices[j];
             }
             
             Vector4 dsd                 = new Vector4();
@@ -190,8 +187,6 @@ public class ShadowRender
             dsd.w                       = data.TileIndex;
             
         }
-
-        
         
         ShadowBuffer.SetGlobalVectorArray(DirectionalShadowDatasID, dirShadowData);
         ShadowBuffer.SetGlobalMatrixArray(ShadowToWorldCascadeMatID, worldToShadowMat);
