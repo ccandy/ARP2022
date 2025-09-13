@@ -38,6 +38,7 @@ Shader "ARP/Lit"
             #include "Lib/Surface.hlsl"
             #include "Lib/Light.hlsl"
             #include "Lib/BRDF.hlsl"
+            #include "Lib/Shadow.hlsl"
             #include "Lib/Lighting.hlsl"
             #include "Lib/Lit.hlsl"
 

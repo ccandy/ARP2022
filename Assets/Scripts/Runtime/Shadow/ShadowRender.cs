@@ -96,7 +96,6 @@ public class ShadowRender
             {
                 RenderShadowCascade(ref context, ref cullingResults, ref shadowGlobalData, i);
             }
-                
         }
     }
     
@@ -136,51 +135,63 @@ public class ShadowRender
                 n,
                 cascadeCount,
                 cascadeRatio,
-                shadowmapSize,
+                tileSize,
                 nearPlane,
                 out viewMatrix,
                 out projectionMatrix,
                 out ShadowSplitData splitData
             );
+            
             shadowSettings.splitData = splitData;
+           
             if (index == 0)
             {
                 Vector4 cullingSphere   = splitData.cullingSphere;
                 cullingSphere.w         *= cullingSphere.w;
                 cullingSpheres[n]       = cullingSphere;
             }
-            Vector2 offset                      = ShadowUtil.GetViewOffset(index, cascadeSplit);
-            Matrix4x4 worldToViewMatrix         = ShadowUtil.GetWorldToShadowMatrix(viewMatrix, projectionMatrix,cascadeSplit, offset);
-            _directionalShadowData.ShadowMatrix = worldToViewMatrix;
-            _directionalShadowData.TileIndex    = tileOffset + n;
+            Vector2 offset              = ShadowUtil.GetViewOffset(index, cascadeSplit);
             ShadowUtil.SetViewPort(ref context, ShadowBuffer, offset, tileSize);
+            ShadowUtil.SetViewProjectMatrix(ref context, ShadowBuffer, viewMatrix, projectionMatrix);
             ShadowUtil.SetShadowBias(ref context, ShadowBuffer, shadowBias);
             context.DrawShadows(ref shadowSettings);
             ShadowUtil.SetShadowBias(ref context, ShadowBuffer, 0);
+            
+            Matrix4x4 worldToViewMatrix                         = ShadowUtil.GetWorldToShadowMatrix(viewMatrix, projectionMatrix,cascadeSplit, offset);
+            int tileIndex                                       = index * tileSize + n;
+            _directionalShadowData.ShadowMatrix[tileIndex]      = worldToViewMatrix;
+            _directionalShadowData.TileIndex                    = tileIndex;
         }
     }
     
     public void SendToGPU(ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
     {
-        int maxDirShadow                = ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS;
-        Matrix4x4[] worldToShadowMat    = new Matrix4x4[maxDirShadow];
-        Vector4[] dirShadowData         = new Vector4[maxDirShadow];
-
-        for (int n = 0; n < dirShadowCount; n++)
+        int maxCascadeShadowDataCount       = ShadowConstants.MAX_CASCADE_SHDAOW_DATA_COUNT;
+        int maxDirShadow                    = ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS;
+        int cascadeCount                    = (int)shadowGlobalData.CascadeCount;
+        
+        Matrix4x4[] worldToShadowMat        = new Matrix4x4[maxCascadeShadowDataCount];
+        Vector4[] dirShadowData             = new Vector4[maxDirShadow];
+        
+        for (int i = 0; i < dirShadowCount; i++)
         { 
-            DirectionalShadowData data  = _directionalShadowDatas[n];
-            worldToShadowMat[n]         = data.ShadowMatrix;
-
+            DirectionalShadowData data  = _directionalShadowDatas[i];
+            Matrix4x4[] matrices        = data.ShadowMatrix;
+            for (int j = 0; j < cascadeCount; j++)
+            {
+                
+                worldToShadowMat[j]         = matrices[j];
+            }
+            
             Vector4 dsd                 = new Vector4();
             dsd.x                       = data.ShadowStrength;
             dsd.y                       = data.ShadowBias;
             dsd.z                       = data.ShadowNearPlane;
             dsd.w                       = data.TileIndex;
             
-            dirShadowData[n]            = dsd;
         }
 
-        int cascadeCount = (int)shadowGlobalData.CascadeCount;
+        
         
         ShadowBuffer.SetGlobalVectorArray(DirectionalShadowDatasID, dirShadowData);
         ShadowBuffer.SetGlobalMatrixArray(ShadowToWorldCascadeMatID, worldToShadowMat);

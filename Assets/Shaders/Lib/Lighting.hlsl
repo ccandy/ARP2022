@@ -59,7 +59,9 @@ half3 GetIncomingLightsColors(Surface surface)
                 specular = GetPhongSpecular(surface, light);
             #endif
         #endif
-        half3 lightColor = (diffuse + specular) * light.lightColor * surface.baseColor;
+        
+        half shadowAtten    = GetDirectionalShadowAtten(n, surface);
+        half3 lightColor    = (diffuse + specular) * light.lightColor * surface.baseColor * shadowAtten;
         res += lightColor;
     }
     return res;

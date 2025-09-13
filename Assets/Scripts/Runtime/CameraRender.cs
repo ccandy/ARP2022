@@ -50,12 +50,11 @@ public class CameraRender
       };
 
       PrepareSceneForSceneWindow(this._camera);
-      
-      if (!Cull())
+      float shadowDistance = shadowGlobalData.ShadowDistance;
+      if (!Cull(shadowDistance))
       {
          return;
       }
-      
       _lightRender.SetupLightData(context, ref _cullingResults);
       _lightRender.Render(context, ref _cullingResults,ref shadowGlobalData);
       
@@ -66,13 +65,15 @@ public class CameraRender
       Submit();
    }
 
-   bool Cull()
+   bool Cull(float distance)
    {
       ScriptableCullingParameters p;
-
+     
+      
       if (_camera.TryGetCullingParameters(out p))
       {
-         _cullingResults = context.Cull(ref p);
+         p.shadowDistance  = distance;
+         _cullingResults   = context.Cull(ref p);
          return true;
       }
       return false;

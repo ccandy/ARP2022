@@ -33,11 +33,7 @@ VertexOutput ShadowCasterVertex( VertexInput input )
 
 float4 ShadowCasterFrag( VertexOutput input ) :SV_TARGET
 {
-    float4 baseMap      = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
-    float4 color        = _Color;
-    float4 baseColor    = baseMap * color;
-    #if defined(_CLIPPING)
-        clip(baseColor.a - _CutOff);
-    #endif
-    return baseColor;
+    float a = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv).a * _Color.a;
+    clip(a - _CutOff);             
+    return 0;                  
 }

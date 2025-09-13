@@ -6,6 +6,7 @@ struct Surface
     float3 normal;
     float3 viewDir;
     float3 specColor;
+    float3 worldPos;
     float alpha;
     float shininess;
     float roughness;
@@ -25,7 +26,7 @@ Surface GetSurface(float4 baseColor, float3 normal, float3 worldPos, float3 spec
     s.specColor     = specColor;
     s.metallic      = metallic;
     s.roughness     = roughness;
-    
+    s.worldPos      = worldPos;
     return s;
 }
 
