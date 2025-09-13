@@ -40,3 +40,10 @@ public class DirectionalShadowData
     public Matrix4x4[]  ShadowMatrix = new Matrix4x4[ShadowConstants.MAX_CASACDE_COUNT];
     public int          TileIndex;
 }
+
+
+public struct CascadeData
+{
+    public int CascadeSplit;
+    public int CascadeTileSize;
+}
