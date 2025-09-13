@@ -31,12 +31,7 @@ public class CameraRender
    };
 
    private Material _errMaterial;
-   
-   
    private LightRender _lightRender = new LightRender();
-   private ShadowRender _shadowRender = new ShadowRender(); 
-   
-   
    public void Render(ScriptableRenderContext context, Camera camera, ShadowGlobalData shadowGlobalData)
    {
       this.context = context;
@@ -55,7 +50,7 @@ public class CameraRender
       {
          return;
       }
-      _lightRender.SetupLightData(context, ref _cullingResults);
+      _lightRender.SetupLightData(context, ref _cullingResults, ref shadowGlobalData);
       _lightRender.Render(context, ref _cullingResults,ref shadowGlobalData);
       
       Setup();

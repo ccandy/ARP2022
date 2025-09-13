@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
 public class ShadowRender 
@@ -22,7 +24,10 @@ public class ShadowRender
     private Vector4[] cullingSpheres                            = new Vector4[ShadowConstants.MAX_CASACDE_COUNT];
     
     private int dirShadowCount                                  = 0;
-    private int cascadeSplit                                    = 0;
+    /*private int cascadeSplit                                    = 0;
+    private int cascadeTileSize                                 = 0;*/
+
+    private CascadeData cascadeData;
     
     public ShadowRender()
     {
@@ -70,7 +75,7 @@ public class ShadowRender
                 dirShadowCount++;
             }
         }
-        cascadeSplit = ShadowUtil.GetSplit(dirShadowCount);
+        //cascadeSplit = ShadowUtil.GetSplit(dirShadowCount);
     }
 
     public void ConfigShadowDirectionalLightData(ref VisibleLight visibleLight, int index)
@@ -79,16 +84,24 @@ public class ShadowRender
         dirShadowCount++;
     }
 
-    public void UpdateShadowData()
+    public void UpdateShadowCascadeData(ref ShadowGlobalData shadowGlobalData)
     {
-        cascadeSplit = ShadowUtil.GetSplit(dirShadowCount);
+
+        int cascadeCount    = (int) shadowGlobalData.CascadeCount;
+        int shadowmapSize   = (int) shadowGlobalData.ShadowMapSize;
+        int tileCount       = cascadeCount * dirShadowCount;
+        
+        cascadeData                     = new CascadeData();
+        int split                       = ShadowUtil.GetSplit(dirShadowCount * cascadeCount);
+        cascadeData.CascadeSplit        = split;
+        cascadeData.CascadeTileSize     = shadowmapSize / split;
     }
     
     public void Render(ref ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
     {
-        NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
-        int shadowmapSize   = (int) shadowGlobalData.ShadowMapSize;
-        int tileSize        = shadowmapSize / dirShadowCount;
+        NativeArray<VisibleLight> visibleLights     = cullingResults.visibleLights;
+        int shadowmapSize                           = (int) shadowGlobalData.ShadowMapSize;
+        int tileSize                                = cascadeData.CascadeTileSize;
 
         GetShadowMap(ref context, CascadeShadowMapID, shadowmapSize, GlobalShadowData.ShadowMapDepth);
         RenderUtil.SetupRenderTarget(ref context, CascadeShadowMapID, ShadowBuffer);
@@ -147,7 +160,10 @@ public class ShadowRender
                 cullingSphere.w         *= cullingSphere.w;
                 cullingSpheres[n]       = cullingSphere;
             }
-            Vector2 offset              = ShadowUtil.GetViewOffset(index, cascadeSplit);
+            
+            int tileIndex               = index * cascadeCount + n;
+            int cascadeSplit            = cascadeData.CascadeSplit;
+            Vector2 offset              = ShadowUtil.GetViewOffset(tileIndex, cascadeSplit);
             ShadowUtil.SetViewPort(ref context, ShadowBuffer, offset, tileSize);
             ShadowUtil.SetViewProjectMatrix(ref context, ShadowBuffer, viewMatrix, projectionMatrix);
             ShadowUtil.SetShadowBias(ref context, ShadowBuffer, shadowBias);
@@ -155,7 +171,6 @@ public class ShadowRender
             ShadowUtil.SetShadowBias(ref context, ShadowBuffer, 0);
             
             Matrix4x4 worldToViewMatrix                         = ShadowUtil.GetWorldToShadowMatrix(viewMatrix, projectionMatrix,cascadeSplit, offset);
-            int tileIndex                                       = index * tileSize + n;
             _directionalShadowData.ShadowMatrix[n]              = worldToViewMatrix;
             _directionalShadowData.TileIndex                    = tileIndex;
         }
@@ -176,7 +191,7 @@ public class ShadowRender
             Matrix4x4[] matrices        = data.ShadowMatrix;
             for (int j = 0; j < cascadeCount; j++)
             {
-                int matIndex                        = i + j;
+                int matIndex                        = i * cascadeCount+ j;
                 worldToShadowMat[matIndex]          = matrices[j];
             }
             

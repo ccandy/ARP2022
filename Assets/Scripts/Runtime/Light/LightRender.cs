@@ -42,7 +42,7 @@ public class LightRender
     }
 
 
-    public void SetupLightData(ScriptableRenderContext context, ref CullingResults cullingResults)
+    public void SetupLightData(ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
     {
         directionalLightCount                   = 0;
         int maxDirectionalLightCount            = LightConstants.MAX_DIRECTIONAL_LIGHTS;
@@ -57,7 +57,7 @@ public class LightRender
                 directionalLightCount++;
             }
         }
-        _shadowRender.UpdateShadowData();
+        _shadowRender.UpdateShadowCascadeData(ref shadowGlobalData);
         
     }
     

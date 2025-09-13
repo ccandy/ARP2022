@@ -7,10 +7,12 @@ public static class ShadowUtil
 {
    public static int GetSplit(int tileCount)
    {
-      int dim  = (int)Mathf.Ceil(Mathf.Sqrt(tileCount));
+     /* int dim  = (int)Mathf.Ceil(Mathf.Sqrt(tileCount));
       int size = Mathf.NextPowerOfTwo(dim);
       
-      return size;
+      return size;*/
+     
+     return tileCount <= 1 ? 1 : tileCount <= 4 ? 2 : 4;
    }
 
    public static Matrix4x4 GetWorldToShadowMatrix(Matrix4x4 viewMat, Matrix4x4 projMat, int split,
