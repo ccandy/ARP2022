@@ -42,9 +42,11 @@ struct DirectionalShadowData
     float strength;
     float normalbias;
     float ShadowNearPlane;
+
+    int CascadeIndex;
 };
 
-DirectionalShadowData GetDirectionalShadowData(int index)
+DirectionalShadowData GetDirectionalShadowData(int index,Surface surface)
 {
 
     float4 shadowdata           = _DirectionalShadowDatas[index];
@@ -53,6 +55,9 @@ DirectionalShadowData GetDirectionalShadowData(int index)
     data.strength               = shadowdata.x;
     data.normalbias             = shadowdata.y;
     data.ShadowNearPlane        = shadowdata.z;
+
+    const float3 worldpos       = surface.worldPos;
+    data.CascadeIndex           = GetCascadeIndex(worldpos);
     
     return data;
 }
@@ -70,9 +75,9 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
         return 0;
     }
     
-    DirectionalShadowData dirShadowData = GetDirectionalShadowData(lightindex);
-    const float3 worldpos               = surface.worldPos;
-    int cascadeindex                    = GetCascadeIndex(worldpos);
+    DirectionalShadowData dirShadowData = GetDirectionalShadowData(lightindex, surface);
+    int cascadeindex                    = dirShadowData.CascadeIndex;
+    
     int tileindex                       = lightindex + cascadeindex;
     float4x4 shadowToWorldCascadeMat    = _ShadowToWorldCascadeMat[tileindex];
     float4 shadowPos                    = mul(shadowToWorldCascadeMat,float4(worldpos,1));
