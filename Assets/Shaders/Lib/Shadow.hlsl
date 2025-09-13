@@ -19,7 +19,7 @@ float GetDistace(float3 pa, float3 pb)
 }
 
 
-int GetCascadeIndex(int worldpos)
+int GetCascadeIndex(float3 worldpos)
 {
     int i = 0;
     for (; i < _CascadeCount; i++)
