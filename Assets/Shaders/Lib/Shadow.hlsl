@@ -13,9 +13,27 @@ CBUFFER_END
 TEXTURE2D_SHADOW(_CascadeShadowMap);
 SAMPLER_CMP(sampler_CascadeShadowMap);
 
+float GetDistace(float3 pa, float3 pb)
+{
+    return dot(pa - pb,pa - pb);
+}
+
+
 int GetCascadeIndex(int worldpos)
 {
-    return 0;
+    int i = 0;
+    for (; i < _CascadeCount; i++)
+    {
+        float4 cullsphere   = _CullSphereDatas[i];
+        float3 center       = cullsphere.xyz;
+        float distance      = GetDistace(center , worldpos);
+        float radius        = cullsphere.w;
+        if (distance < radius)
+        {
+            break;
+        }
+    }
+    return i;
 }
 
 
