@@ -20,8 +20,6 @@ namespace ARP.Render
         
         private CommandBuffer cmd;
         private int directionalLightCount;
-
-       
         
         public LightRender()
         {
@@ -34,8 +32,6 @@ namespace ARP.Render
         public void Render(ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
         {
             _shadowRender.Render(ref context, ref cullingResults, ref shadowGlobalData);
-            
-            
             _shadowRender.SendToGPU(context, ref shadowGlobalData);
             SendToGPU(context, cmd);
             CleanUp(ref context);
