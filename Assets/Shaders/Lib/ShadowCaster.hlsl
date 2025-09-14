@@ -26,6 +26,14 @@ VertexOutput ShadowCasterVertex( VertexInput input )
 
     float3 worldPos         = TransformObjectToWorld(input.PositionOS.xyz);
     output.PositionCS       = TransformWorldToHClip(worldPos);
+
+    #if UNITY_REVERSED_Z
+        output.PositionCS.z =
+            min(output.PositionCS.z, output.PositionCS.w * UNITY_NEAR_CLIP_VALUE);
+    #else
+        output.positionCS.z =
+            max(output.PositionCS.z, output.PositionCS.w * UNITY_NEAR_CLIP_VALUE);
+    #endif
     output.uv               = TRANSFORM_TEX(input.uv,_MainTex);
     return output;
 }
