@@ -82,7 +82,11 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
     float4x4 shadowToWorldCascadeMat    = _ShadowToWorldCascadeMat[tileindex];
 
     const float3 worldpos               = surface.worldPos;
-    float4 shadowPos                    = mul(shadowToWorldCascadeMat,float4(worldpos,1));
+    const float3 worldnormal            = surface.normal;
+    const float3 normalBias             = dirShadowData.normalbias;
+    const float bias                    = normalBias * worldnormal;
+    
+    float4 shadowPos                    = mul(shadowToWorldCascadeMat,float4(worldpos + bias,1));
     shadowPos.xyz                       /= shadowPos.w;
     half shadowAtten                    = SampleCascadeShadowmap(shadowPos.xyz);
     half shadowStrength                 = dirShadowData.strength;

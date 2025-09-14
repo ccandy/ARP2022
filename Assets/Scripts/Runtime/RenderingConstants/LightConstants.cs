@@ -2,7 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class LightConstants
+namespace ARP.Constant
 {
-    public static readonly int MAX_DIRECTIONAL_LIGHTS = 4;
+    public static class LightConstants
+    {
+        public static readonly int MAX_DIRECTIONAL_LIGHTS = 4;
+    }
 }
+    
