@@ -31,10 +31,10 @@ public class ShadowGlobalData
     
     public enum PCFFilter
     {
-        PCF2x2, PCF3x3, PCF4x4, PCF5x5
+        PCF3x3, PCF5x5, PCF7x7
     }
 
-    public PCFFilter FilterMode = PCFFilter.PCF2x2;
+    public PCFFilter FilterMode = PCFFilter.PCF3x3;
 }
 
 
@@ -48,6 +48,7 @@ public class DirectionalShadowData
     public Matrix4x4[]  ShadowMatrix = new Matrix4x4[ShadowConstants.MAX_CASACDE_COUNT];
     public int          TileIndex;
     public float        TexelSize;
+    public bool         EnableSoftShadow;
 }
 
 

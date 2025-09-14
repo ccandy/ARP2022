@@ -33,6 +33,7 @@ Shader "ARP/Lit"
             #pragma fragment LitPassFrag
             #pragma shader_feature ARP_BlinnPhong_OFF ARP_BlinnPhong_ON
             #pragma shader_feature ARP_PBR_OFF ARP_PBR_ON
+            #pragma shader_feature ENABLE_DIRECTIONAL_SOFTSHADOW_PCF3X3 ENABLE_DIRECTIONAL_SOFTSHADOW_PCF5X5 ENABLE_DIRECTIONAL_SOFTSHADOW_PCF7X7 
             
             #include "Lib/Common.hlsl"
             #include "Lib/Surface.hlsl"

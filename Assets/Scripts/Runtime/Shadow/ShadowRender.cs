@@ -46,7 +46,8 @@ namespace ARP.Render
                 ShadowStrength          = visibleLight.light.shadowStrength,
                 NormalShadowBias        = visibleLight.light.shadowNormalBias,
                 ShadowNearPlane         = visibleLight.light.shadowNearPlane,
-                ShadowBias              = visibleLight.light.shadowBias         
+                ShadowBias              = visibleLight.light.shadowBias,
+                EnableSoftShadow        = (visibleLight.light.shadows == LightShadows.Soft),
             };
         }
         
@@ -173,7 +174,7 @@ namespace ARP.Render
                 Vector4 dsd                     = new Vector4();
                 dsd.x                           = data.ShadowStrength;
                 dsd.y                           = data.NormalShadowBias * data.TexelSize;
-                dsd.z                           = data.ShadowNearPlane;
+                dsd.z                           = data.EnableSoftShadow ? 1 : 0;
                 dsd.w                           = data.TileIndex;
                 dirShadowData[i]                = dsd;
             }
@@ -182,6 +183,13 @@ namespace ARP.Render
             ShadowBuffer.SetGlobalMatrixArray(ShadowConstants.ShadowToWorldCascadeMatID, worldToShadowMat);
             ShadowBuffer.SetGlobalVectorArray(ShadowConstants.CullSphereDatasID, cullingSpheres);
             ShadowBuffer.SetGlobalInt(ShadowConstants.CascadeCountID, cascadeCount);
+            
+            Vector4 shadowmapTexel  = new Vector4();
+        
+            int shadowmapSize       = (int) shadowGlobalData.ShadowMapSize;
+            shadowmapTexel.x        = shadowmapSize;
+            shadowmapTexel.y        = 1f / shadowmapSize;
+            ShadowBuffer.SetGlobalVector(ShadowConstants.ShadowMapTexelSizeID, shadowmapTexel);
             
             context.ExecuteCommandBuffer(ShadowBuffer);
             ShadowBuffer.Clear();
