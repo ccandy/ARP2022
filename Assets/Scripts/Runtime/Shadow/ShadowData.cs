@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using ARP.Constant;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -28,6 +29,12 @@ public class ShadowGlobalData
     public CascadeAmount CascadeCount   = CascadeAmount._1;
     public Vector3 CascadeRaito         = new Vector3(0.1f, 0.25f, 0.5f);
     
+    public enum PCFFilter
+    {
+        PCF2x2, PCF3x3, PCF4x4, PCF5x5
+    }
+
+    public PCFFilter FilterMode = PCFFilter.PCF2x2;
 }
 
 

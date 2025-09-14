@@ -191,7 +191,6 @@ namespace ARP.Render
             ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);
          }
       }
-      
    }
 }
    

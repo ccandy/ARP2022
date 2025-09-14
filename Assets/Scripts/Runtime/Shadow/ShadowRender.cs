@@ -8,12 +8,6 @@ namespace ARP.Render
 {
     public class ShadowRender 
     {
-        private int ShadowToWorldCascadeMatID                   = Shader.PropertyToID("_ShadowToWorldCascadeMat");
-        private int DirectionalShadowDatasID                    = Shader.PropertyToID("_DirectionalShadowDatas");
-        private int CullSphereDatasID                           = Shader.PropertyToID("_CullSphereDatas");
-        private int CascadeShadowMapID                          = Shader.PropertyToID("_CascadeShadowMap");
-        private int CascadeCountID                              = Shader.PropertyToID("_CascadeCount");    
-        
         private const string bufferName                         = "ShadowBuffer";
         
         private CommandBuffer ShadowBuffer;
@@ -32,10 +26,9 @@ namespace ARP.Render
             {
                 ShadowBuffer = new CommandBuffer()
                 {
-                    name = "ShadowBuffer"
+                    name = bufferName
                 };
             }
-                
         }
         
         private void SetupShadowData(ref VisibleLight visibleLight, int index)
@@ -81,8 +74,8 @@ namespace ARP.Render
             int shadowmapSize                           = (int) shadowGlobalData.ShadowMapSize;
             int tileSize                                = cascadeData.CascadeTileSize;
 
-            GetShadowMap(ref context, CascadeShadowMapID, shadowmapSize, GlobalShadowData.ShadowMapDepth);
-            RenderUtil.SetupRenderTarget(ref context, CascadeShadowMapID, ShadowBuffer);
+            GetShadowMap(ref context, ShadowConstants.CascadeShadowMapID, shadowmapSize, GlobalShadowData.ShadowMapDepth);
+            RenderUtil.SetupRenderTarget(ref context, ShadowConstants.CascadeShadowMapID, ShadowBuffer);
             
             for (int i = 0; i < visibleLights.Length; ++i)
             {
@@ -185,10 +178,10 @@ namespace ARP.Render
                 dirShadowData[i]                = dsd;
             }
             
-            ShadowBuffer.SetGlobalVectorArray(DirectionalShadowDatasID, dirShadowData);
-            ShadowBuffer.SetGlobalMatrixArray(ShadowToWorldCascadeMatID, worldToShadowMat);
-            ShadowBuffer.SetGlobalVectorArray(CullSphereDatasID, cullingSpheres);
-            ShadowBuffer.SetGlobalInt(CascadeCountID, cascadeCount);
+            ShadowBuffer.SetGlobalVectorArray(ShadowConstants.DirectionalShadowDatasID, dirShadowData);
+            ShadowBuffer.SetGlobalMatrixArray(ShadowConstants.ShadowToWorldCascadeMatID, worldToShadowMat);
+            ShadowBuffer.SetGlobalVectorArray(ShadowConstants.CullSphereDatasID, cullingSpheres);
+            ShadowBuffer.SetGlobalInt(ShadowConstants.CascadeCountID, cascadeCount);
             
             context.ExecuteCommandBuffer(ShadowBuffer);
             ShadowBuffer.Clear();
@@ -209,7 +202,7 @@ namespace ARP.Render
 
         public void CleanUP(ref ScriptableRenderContext context)
         {
-            RenderUtil.ReleaseRenderTexture(ref context, ShadowBuffer, CascadeShadowMapID);
+            RenderUtil.ReleaseRenderTexture(ref context, ShadowBuffer, ShadowConstants.CascadeShadowMapID);
             dirShadowCount = 0;
         }
     }
