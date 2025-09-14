@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using ARP.Constant;
 
 namespace ARP.Render
 {
@@ -52,6 +53,8 @@ namespace ARP.Render
          {
             return;
          }
+
+         SetupKeyWords(ref shadowGlobalData);
          _lightRender.SetupLightData(context, ref _cullingResults, ref shadowGlobalData);
          _lightRender.Render(context, ref _cullingResults,ref shadowGlobalData);
          
@@ -76,6 +79,17 @@ namespace ARP.Render
          return false;
       }
 
+      private void SetupKeyWords(ref ShadowGlobalData shadowGlobalData)
+      {
+         string[] softshadowKeyworkds  = ShadowKeywords.DirectionalSoftShadowKeyword;
+         int enableSoftKeywords        = (int)shadowGlobalData.FilterMode;
+         string enabledSoftKeywords    = softshadowKeyworkds[enableSoftKeywords];
+         
+         cmd.EnableShaderKeyword(enabledSoftKeywords);
+         ExecuteCommandBuffer(cmd);
+         
+      }
+      
       void Setup()
       {
          context.SetupCameraProperties(_camera);
