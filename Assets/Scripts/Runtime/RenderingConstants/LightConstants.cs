@@ -11,6 +11,8 @@ namespace ARP.Constant
         public static readonly int DirectionalLightsDirId      = Shader.PropertyToID("_DirectionaLightsDir");
         public static readonly int DirectionalLightsColorId    = Shader.PropertyToID("_DirectionalLightsColor");
         public static readonly int DirectonalLightAccountId    = Shader.PropertyToID("_DirectionalLightCount");
+        public static readonly int DirectionalLightsDataId     = Shader.PropertyToID("_DirectionalLightsData");
+        
         
         public static readonly string bufferName                = "LightBuffer";
     }
