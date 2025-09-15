@@ -1,5 +1,11 @@
 #pragma once
 
+bool LayerOverLay(int surfaceLayerMask, int lightLayerMask)
+{
+    return surfaceLayerMask == lightLayerMask;
+}
+
+
 half3 GetPhongDiffuse(Surface surface, Light light)
 {
     float3 normal   = surface.normal;
@@ -47,6 +53,17 @@ half3 GetIncomingLightsColors(Surface surface)
     for (int n = 0; n < directonalCount; ++n)
     {
         Light light = GetDirectionalLight(n);
+
+        int lightLayerMask      = asint(light.renderLayerMask);
+        int surfaceLayerMask    = surface.renderLayerMask;
+        
+        bool layerOverLay = LayerOverLay(surfaceLayerMask, lightLayerMask);
+
+        if (!layerOverLay)
+        {
+            continue;
+        }
+        
         #if defined(ARP_PBR_ON)
             BRDF brdf   = GetBRDF(surface, light);
             diffuse     = brdf.Diffuse;
