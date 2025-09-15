@@ -16,7 +16,7 @@ namespace ARP.Render
         private DirectionalShadowData[] _directionalShadowDatas     = new DirectionalShadowData[ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS];
         private Vector4[] cullingSpheres                            = new Vector4[ShadowConstants.MAX_CASACDE_COUNT];
         
-        private int dirShadowCount                                  = 0;
+        public int dirShadowCount                                  = 0;
 
         private CascadeData cascadeData;
         
@@ -165,6 +165,7 @@ namespace ARP.Render
             { 
                 DirectionalShadowData data  = _directionalShadowDatas[i];
                 Matrix4x4[] matrices        = data.ShadowMatrix;
+                
                 for (int j = 0; j < cascadeCount; j++)
                 {
                     int matIndex                        = i * cascadeCount+ j;

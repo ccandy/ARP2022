@@ -36,6 +36,7 @@ namespace ARP.Render
         public void SetupLightData(ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
         {
             directionalLightCount                   = 0;
+            _shadowRender.dirShadowCount            = 0;
             int maxDirectionalLightCount            = LightConstants.MAX_DIRECTIONAL_LIGHTS;
             NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
             for (int i = 0; i < visibleLights.Length; ++i)
@@ -88,7 +89,7 @@ namespace ARP.Render
             Vector4[] dirLightDir   = new Vector4[maxDirectionalLightCount];
             Vector4[] dirLightData  = new Vector4[maxDirectionalLightCount];
 
-            for (int i = 0; i < LightConstants.MAX_DIRECTIONAL_LIGHTS; ++i)
+            for (int i = 0; i < directionalLightCount; ++i)
             {
                 dirLightColor[i] = _lightDatas[i].LightColor;
                 dirLightDir[i]      = _lightDatas[i].LightDirection;
@@ -103,7 +104,7 @@ namespace ARP.Render
             cmd.SetGlobalVectorArray(LightConstants.DirectionalLightsColorId,dirLightColor);
             cmd.SetGlobalVectorArray(LightConstants.DirectionalLightsDirId, dirLightDir);
             cmd.SetGlobalInt(LightConstants.DirectonalLightAccountId, directionalLightCount);
-            cmd.SetGlobalVectorArray(LightConstants.DirectionalLightsDirId, dirLightData);
+            cmd.SetGlobalVectorArray(LightConstants.DirectionalLightsDataId, dirLightData);
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
         }
