@@ -1,0 +1,12 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class LightData
+{
+    public Color    LightColor;
+    public Vector4  LightDirection;
+    public Vector4  LightPosition;
+    public float    LightAtten;
+    public float    RenderLayerMask;
+}
