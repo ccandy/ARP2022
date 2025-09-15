@@ -7,25 +7,20 @@ namespace ARP.Render
 {
     public class LightRender
     {
+        private LightData[] _lightDatas = new LightData[LightConstants.MAX_DIRECTIONAL_LIGHTS];
         
-        private int DirectionalLightsDirId      = Shader.PropertyToID("_DirectionaLightsDir");
-        private int DirectionalLightsColorId    = Shader.PropertyToID("_DirectionalLightsColor");
-        private int DirectonalLightAccountId    = Shader.PropertyToID("_DirectionalLightCount");
-        
-        private const string bufferName         = "LightBuffer";
-        
-        private Vector4[] DirectionaLightsDir   = new Vector4[LightConstants.MAX_DIRECTIONAL_LIGHTS];
-        private Vector4[] DirectionaLightsColor = new Vector4[LightConstants.MAX_DIRECTIONAL_LIGHTS];
         private ShadowRender _shadowRender      = new ShadowRender();
         
         private CommandBuffer cmd;
         private int directionalLightCount;
+
+        private int maxDirectionalLightCount = LightConstants.MAX_DIRECTIONAL_LIGHTS;
         
         public LightRender()
         {
             cmd = new CommandBuffer()
             {
-                name = bufferName
+                name = LightConstants.bufferName
             };
         }
 
@@ -63,14 +58,22 @@ namespace ARP.Render
             {
                 return;
             }
-            DirectionaLightsColor[directionalLightCount] = visibleLight.finalColor;
-            DirectionaLightsDir[directionalLightCount]      = -visibleLight.localToWorldMatrix.GetColumn(2);
+            
+            
+            LightData directionalLightData = new LightData();
+            
+            directionalLightData.LightDirection     = -visibleLight.localToWorldMatrix.GetColumn(2);
+            directionalLightData.LightColor         = visibleLight.finalColor;
+            directionalLightData.LightAtten         = 1;
+            directionalLightData.RenderLayerMask    = visibleLight.light.renderingLayerMask;
+
+            _lightDatas[directionalLightCount]      = directionalLightData;
+            
         }
 
         private void CleanUp(ref ScriptableRenderContext context)
         {
-            System.Array.Clear(DirectionaLightsDir, 0, DirectionaLightsDir.Length);
-            System.Array.Clear(DirectionaLightsColor, 0, DirectionaLightsColor.Length);
+            System.Array.Clear(_lightDatas, 0, _lightDatas.Length);
             _shadowRender.CleanUP(ref context);
         }
         
@@ -81,9 +84,26 @@ namespace ARP.Render
                 return;
             }
             
-            cmd.SetGlobalVectorArray(DirectionalLightsColorId,DirectionaLightsColor);
-            cmd.SetGlobalVectorArray(DirectionalLightsDirId, DirectionaLightsDir);
-            cmd.SetGlobalInt(DirectonalLightAccountId, directionalLightCount);
+            Vector4[] dirLightColor = new Vector4[maxDirectionalLightCount];
+            Vector4[] dirLightDir   = new Vector4[maxDirectionalLightCount];
+            Vector4[] dirLightData  = new Vector4[maxDirectionalLightCount];
+
+            for (int i = 0; i < LightConstants.MAX_DIRECTIONAL_LIGHTS; ++i)
+            {
+                dirLightColor[i] = _lightDatas[i].LightColor;
+                dirLightDir[i]      = _lightDatas[i].LightDirection;
+
+                Vector4 lightData   = new Vector4();
+                lightData.x         = _lightDatas[i].LightAtten;
+                lightData.y         = _lightDatas[i].RenderLayerMask;
+                
+                dirLightData[i]     = lightData;
+            }
+            
+            cmd.SetGlobalVectorArray(LightConstants.DirectionalLightsColorId,dirLightColor);
+            cmd.SetGlobalVectorArray(LightConstants.DirectionalLightsDirId, dirLightDir);
+            cmd.SetGlobalInt(LightConstants.DirectonalLightAccountId, directionalLightCount);
+            cmd.SetGlobalVectorArray(LightConstants.DirectionalLightsDirId, dirLightData);
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
         }
