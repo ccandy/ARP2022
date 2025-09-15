@@ -37,15 +37,18 @@ namespace ARP.Render
         {
             directionalLightCount                   = 0;
             _shadowRender.dirShadowCount            = 0;
-            int maxDirectionalLightCount            = LightConstants.MAX_DIRECTIONAL_LIGHTS;
             NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
             for (int i = 0; i < visibleLights.Length; ++i)
             {
                 VisibleLight visibleLight = visibleLights[i];
                 if (visibleLight.lightType == LightType.Directional)
                 {
-                    ConfigDirectionalLightData(visibleLight, directionalLightCount); 
-                    _shadowRender.ConfigShadowDirectionalLightData(ref visibleLight, i);
+                    ConfigDirectionalLightData(visibleLight, directionalLightCount);
+                    if (visibleLight.light.shadows != LightShadows.None)
+                    {
+                        _shadowRender.ConfigShadowDirectionalLightData(ref visibleLight, i);
+                    }
+                        
                     directionalLightCount++;
                 }
             }
@@ -66,7 +69,7 @@ namespace ARP.Render
             directionalLightData.LightDirection     = -visibleLight.localToWorldMatrix.GetColumn(2);
             directionalLightData.LightColor         = visibleLight.finalColor;
             directionalLightData.LightAtten         = 1;
-            directionalLightData.RenderLayerMask    = visibleLight.light.renderingLayerMask;
+            directionalLightData.RenderLayerMask    = visibleLight.light.renderingLayerMask - 1;
 
             _lightDatas[directionalLightCount]      = directionalLightData;
             

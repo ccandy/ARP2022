@@ -49,6 +49,7 @@ public class DirectionalShadowData
     public int          TileIndex;
     public float        TexelSize;
     public bool         EnableSoftShadow;
+    public LightType    ShadowLightType;
 }
 
 

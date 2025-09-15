@@ -16,7 +16,7 @@ struct Light
     float3 lightDirection;
     float3 lightPosition;
     float attenuation;
-    float renderLayerMask;
+    int renderLayerMask;
     
 };
 
@@ -32,7 +32,7 @@ Light GetDirectionalLight(int index)
     light.attenuation       = 1.0f;
     light.lightColor        = _DirectionalLightsColor[index];
     light.lightDirection    = normalize(_DirectionaLightsDir[index]);
-    light.renderLayerMask    = _DirectionalLightsData[index].y;
+    light.renderLayerMask    = asint(_DirectionalLightsData[index].y);
     
     return light;
 }

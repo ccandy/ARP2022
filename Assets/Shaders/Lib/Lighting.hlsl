@@ -2,7 +2,7 @@
 
 bool LayerOverLay(int surfaceLayerMask, int lightLayerMask)
 {
-    return surfaceLayerMask == lightLayerMask;
+    return (surfaceLayerMask == lightLayerMask);
 }
 
 
@@ -57,12 +57,12 @@ half3 GetIncomingLightsColors(Surface surface)
         int lightLayerMask      = asint(light.renderLayerMask);
         int surfaceLayerMask    = surface.renderLayerMask;
         
-        bool layerOverLay = LayerOverLay(surfaceLayerMask, lightLayerMask);
+        /*bool layerOverLay = LayerOverLay(surfaceLayerMask, lightLayerMask);
 
         if (!layerOverLay)
         {
             continue;
-        }
+        }*/
         
         #if defined(ARP_PBR_ON)
             BRDF brdf   = GetBRDF(surface, light);

@@ -48,6 +48,7 @@ namespace ARP.Render
                 ShadowNearPlane         = visibleLight.light.shadowNearPlane,
                 ShadowBias              = visibleLight.light.shadowBias,
                 EnableSoftShadow        = (visibleLight.light.shadows == LightShadows.Soft),
+                ShadowLightType         = visibleLight.lightType
             };
         }
         
@@ -60,6 +61,11 @@ namespace ARP.Render
         public void UpdateShadowCascadeData(ref ShadowGlobalData shadowGlobalData)
         {
 
+            if (dirShadowCount == 0)
+            {
+                return;
+            }
+            
             int cascadeCount    = (int) shadowGlobalData.CascadeCount;
             int shadowmapSize   = (int) shadowGlobalData.ShadowMapSize;
             
@@ -71,28 +77,32 @@ namespace ARP.Render
         
         public void Render(ref ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
         {
-            NativeArray<VisibleLight> visibleLights     = cullingResults.visibleLights;
+            if (dirShadowCount == 0)
+            {
+                return;
+            }
+            
+            //NativeArray<VisibleLight> visibleLights     = cullingResults.visibleLights;
             int shadowmapSize                           = (int) shadowGlobalData.ShadowMapSize;
             int tileSize                                = cascadeData.CascadeTileSize;
 
             GetShadowMap(ref context, ShadowConstants.CascadeShadowMapID, shadowmapSize, GlobalShadowData.ShadowMapDepth);
             RenderUtil.SetupRenderTarget(ref context, ShadowConstants.CascadeShadowMapID, ShadowBuffer);
             
-            for (int i = 0; i < visibleLights.Length; ++i)
+            for (int i = 0; i < dirShadowCount; ++i)
             {
-                VisibleLight visibleLight = visibleLights[i];
-                if (visibleLight.lightType == LightType.Directional)
+                DirectionalShadowData data = _directionalShadowDatas[i];
+                if (data.ShadowLightType == LightType.Directional)
                 {
-                    RenderShadowCascade(ref context, ref cullingResults, ref shadowGlobalData, i,tileSize);
+                    RenderShadowCascade(ref context, ref cullingResults, ref shadowGlobalData,ref data, i,tileSize);
                 }
             }
         }
         
         private void RenderShadowCascade(ref ScriptableRenderContext context,ref CullingResults cullingResults, 
-            ref ShadowGlobalData shadowGlobalData, int index, int tileSize)
+            ref ShadowGlobalData shadowGlobalData, ref DirectionalShadowData data, int index, int tileSize)
         {
-            ref DirectionalShadowData _directionalShadowData = ref _directionalShadowDatas[index];
-            if (_directionalShadowData == null)
+            if (data == null)
             {
                 Debug.LogErrorFormat("DirectionalShadowData at {0} is null", index);
                 return;
@@ -103,8 +113,8 @@ namespace ARP.Render
             Matrix4x4 viewMatrix        = Matrix4x4.identity;
             Matrix4x4 projectionMatrix  = Matrix4x4.identity;
             Vector3 cascadeRatio        = shadowGlobalData.CascadeRaito;
-            float nearPlane             = _directionalShadowData.ShadowNearPlane;
-            float shadowBias            = _directionalShadowData.ShadowBias;
+            float nearPlane             = data.ShadowNearPlane;
+            float shadowBias            = data.ShadowBias;
             var shadowSettings =
                 new ShadowDrawingSettings(cullingResults, index,BatchCullingProjectionType.Orthographic);
             
@@ -134,7 +144,7 @@ namespace ARP.Render
                     float texelSize                     = 2 * cullingSphere.w / tileSize;
                     texelSize                           *= MathConstant.SQRT2;
 
-                    _directionalShadowData.TexelSize    = texelSize;
+                    data.TexelSize                      = texelSize;
                 }
                 
                 int tileIndex               = index * cascadeCount + n;
@@ -147,8 +157,8 @@ namespace ARP.Render
                 ShadowUtil.SetShadowBias(ref context, ShadowBuffer, 0);
                 
                 Matrix4x4 worldToViewMatrix                         = ShadowUtil.GetWorldToShadowMatrix(viewMatrix, projectionMatrix,cascadeSplit, offset);
-                _directionalShadowData.ShadowMatrix[n]              = worldToViewMatrix;
-                _directionalShadowData.TileIndex                    = tileIndex;
+                data.ShadowMatrix[n]                                = worldToViewMatrix;
+                data.TileIndex                                      = tileIndex;
             }
         }
         
