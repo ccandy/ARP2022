@@ -43,6 +43,7 @@ namespace ARP.Render
             _shadowRender.dirShadowCount            = 0;
             
             _directionalLightRender.Init();
+            _additionalLightRender.Init();
             
             NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
             for (int i = 0; i < visibleLights.Length; ++i)
