@@ -116,8 +116,16 @@ namespace ARP.Render
             {
                 return;
             }
-            SendDirectonalLightsDataToGPU(ref context, cmd);
-            SendAdditionalLightsDataToGPU(ref context, cmd);
+
+            if (directionalLightCount > 0)
+            {
+                SendDirectonalLightsDataToGPU(ref context, cmd);
+            }
+
+            if (additionalLightCount > 0)
+            {
+                SendAdditionalLightsDataToGPU(ref context, cmd);
+            }
         }
 
         private void SendAdditionalLightsDataToGPU(ref ScriptableRenderContext context, CommandBuffer cmd)
