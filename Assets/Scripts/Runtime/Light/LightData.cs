@@ -10,3 +10,9 @@ public class LightData
     public float    LightAtten;
     public float    RenderLayerMask;
 }
+
+public class AdditionalLightData : LightData
+{
+    public float        LightRange;
+    public LightType    AdditionalLightType;
+}

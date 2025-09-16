@@ -74,6 +74,12 @@ namespace ARP.Render
             cascadeData.CascadeSplit        = split;
             cascadeData.CascadeTileSize     = shadowmapSize / split;
         }
+
+        public void UpdateAdditionalShadowData(int additionalLightCount)
+        {
+            
+        }
+        
         
         public void Render(ref ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
         {
@@ -82,7 +88,6 @@ namespace ARP.Render
                 return;
             }
             
-            //NativeArray<VisibleLight> visibleLights     = cullingResults.visibleLights;
             int shadowmapSize                           = (int) shadowGlobalData.ShadowMapSize;
             int tileSize                                = cascadeData.CascadeTileSize;
 
@@ -161,8 +166,8 @@ namespace ARP.Render
                 data.TileIndex                                      = tileIndex;
             }
         }
-        
-        public void SendToGPU(ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
+
+        private void SendDirectionalLightDataToGPU(ref ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
         {
             int maxCascadeShadowDataCount       = ShadowConstants.MAX_CASCADE_SHDAOW_DATA_COUNT;
             int maxDirShadow                    = ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS;
@@ -195,15 +200,34 @@ namespace ARP.Render
             ShadowBuffer.SetGlobalVectorArray(ShadowConstants.CullSphereDatasID, cullingSpheres);
             ShadowBuffer.SetGlobalInt(ShadowConstants.CascadeCountID, cascadeCount);
             
+            context.ExecuteCommandBuffer(ShadowBuffer);
+            ShadowBuffer.Clear();
+        }
+
+        private void SendShadowTexelDataToGPU(ref ShadowGlobalData shadowGlobalData)
+        {
             Vector4 shadowmapTexel  = new Vector4();
         
             int shadowmapSize       = (int) shadowGlobalData.ShadowMapSize;
             shadowmapTexel.x        = shadowmapSize;
             shadowmapTexel.y        = 1f / shadowmapSize;
             ShadowBuffer.SetGlobalVector(ShadowConstants.ShadowMapTexelSizeID, shadowmapTexel);
+        }
+
+        private void SendAdditionalShadowDataToGPU(ref ScriptableRenderContext context,
+            ref ShadowGlobalData shadowGlobalData)
+        {
             
-            context.ExecuteCommandBuffer(ShadowBuffer);
-            ShadowBuffer.Clear();
+        }
+        
+        
+        public void SendToGPU(ref ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
+        {
+            SendDirectionalLightDataToGPU(ref context, ref shadowGlobalData);
+            SendAdditionalShadowDataToGPU(ref context, ref shadowGlobalData);
+            
+            SendShadowTexelDataToGPU(ref shadowGlobalData);
+            
         }
 
 

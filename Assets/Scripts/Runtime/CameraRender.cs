@@ -56,7 +56,7 @@ namespace ARP.Render
 
          SetupKeyWords(ref shadowGlobalData);
          _lightRender.SetupLightData(context, ref _cullingResults, ref shadowGlobalData);
-         _lightRender.Render(context, ref _cullingResults,ref shadowGlobalData);
+         _lightRender.Render(ref context, ref _cullingResults,ref shadowGlobalData);
          
          Setup();
          DrawVisibleGeometry(this._camera);
