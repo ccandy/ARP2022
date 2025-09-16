@@ -21,7 +21,7 @@ namespace ARP.Constant
         public static readonly int AdditionalLightsColorId      = Shader.PropertyToID("_AdditionalLightsColor");
         public static readonly int AdditionalLightAccountId     = Shader.PropertyToID("_AdditionalLightCount");
         public static readonly int AdditionalLightsDataId       = Shader.PropertyToID("_AdditionalLightsData");
-        
+        public static readonly int AdditionalLightsAxisId        = Shader.PropertyToID("_AdditionalLightsAxis");
         
         
         public static readonly string bufferName                = "LightBuffer";

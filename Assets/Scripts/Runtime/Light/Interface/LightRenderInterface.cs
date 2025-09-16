@@ -5,7 +5,7 @@ using UnityEngine.Rendering;
 
 public interface LightRenderInterface
 {
-   public void ConfigDirectionalLightData(VisibleLight visibleLight);
+   public void ConfigurelLightData(VisibleLight visibleLight);
    public void CleanUp();
    public void SendToGPU(ref ScriptableRenderContext context, CommandBuffer cmd);
 
