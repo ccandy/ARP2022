@@ -122,9 +122,9 @@ namespace ARP.Render
 
         private void SendAdditionalLightsDataToGPU(ref ScriptableRenderContext context, CommandBuffer cmd)
         {
-            Vector4[] additionalLightColor       = new Vector4[maxAdditionalLightCount];
-            Vector4[] additionalLightPosition    = new Vector4[maxAdditionalLightCount];
-            Vector4[] additionalightData         = new Vector4[maxAdditionalLightCount];
+            Vector4[] additionalLightColor       = new Vector4[additionalLightCount];
+            Vector4[] additionalLightPosition    = new Vector4[additionalLightCount];
+            Vector4[] additionalightData         = new Vector4[additionalLightCount];
 
             for (int i = 0; i < additionalLightCount; ++i)
             {
@@ -149,9 +149,9 @@ namespace ARP.Render
         
         private void SendDirectonalLightsDataToGPU(ref ScriptableRenderContext context, CommandBuffer cmd)
         {
-            Vector4[] dirLightColor = new Vector4[maxDirectionalLightCount];
-            Vector4[] dirLightDir   = new Vector4[maxDirectionalLightCount];
-            Vector4[] dirLightData  = new Vector4[maxDirectionalLightCount];
+            Vector4[] dirLightColor = new Vector4[directionalLightCount];
+            Vector4[] dirLightDir   = new Vector4[directionalLightCount];
+            Vector4[] dirLightData  = new Vector4[directionalLightCount];
 
             for (int i = 0; i < directionalLightCount; ++i)
             {
