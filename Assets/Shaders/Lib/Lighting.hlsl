@@ -42,28 +42,19 @@ float3 GetBlinnPhongSpecular(Surface surface, Light light)
     return specular;
 }
 
-
-half3 GetIncomingLightsColors(Surface surface)
+half3 GetDirectionalLightsColor(Surface surface)
 {
     int directonalCount = GetDirectionalCount();
-    half3 res           = 0;
+
     half3 diffuse       = 0;
     half3 specular      = 0;
-    
-    for (int n = 0; n < directonalCount; ++n)
+
+    half3 lightColor    = 0;
+
+    for(int i = 0; i < directonalCount; ++i)
     {
-        Light light = GetDirectionalLight(n);
+        Light light = GetDirectionalLight(i);
 
-        int lightLayerMask      = asint(light.renderLayerMask);
-        int surfaceLayerMask    = surface.renderLayerMask;
-        
-        /*bool layerOverLay = LayerOverLay(surfaceLayerMask, lightLayerMask);
-
-        if (!layerOverLay)
-        {
-            continue;
-        }*/
-        
         #if defined(ARP_PBR_ON)
             BRDF brdf   = GetBRDF(surface, light);
             diffuse     = brdf.Diffuse;
@@ -71,17 +62,26 @@ half3 GetIncomingLightsColors(Surface surface)
         #else
             diffuse = GetPhongDiffuse(surface, light);
             #if defined(ARP_BlinnPhong_ON)
-               specular = GetBlinnPhongSpecular(surface, light);
+                specular = GetBlinnPhongSpecular(surface, light);
             #else
                 specular = GetPhongSpecular(surface, light);
             #endif
         #endif
-        
-        half shadowAtten        = GetDirectionalShadowAtten(n, surface);
+
+        half shadowAtten        = GetDirectionalShadowAtten(i, surface);
         half3 lightIntensity    = light.lightColor * shadowAtten;
         half3 finalCol          = (diffuse * surface.baseColor + specular) * lightIntensity;
-        res += finalCol;
+        lightColor              += finalCol;
     }
+
+    return lightColor;
+}
+
+half3 GetIncomingLightsColors(Surface surface)
+{
+    half3 res                       = 0;
+    half3 directionallightColor     = GetDirectionalLightsColor(surface);
+    res += directionallightColor;
     return res;
 }
 
