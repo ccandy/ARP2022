@@ -47,14 +47,21 @@ public class DirectionalShadowData
     public float        ShadowBias;
     public Matrix4x4[]  ShadowMatrix = new Matrix4x4[ShadowConstants.MAX_CASACDE_COUNT];
     public int          TileIndex;
-    public float        TexelSize;
     public bool         EnableSoftShadow;
     public LightType    ShadowLightType;
 }
 
 
-public struct CascadeData
+public class CascadeData
 {
     public int CascadeSplit;
     public int CascadeTileSize;
 }
+
+public class CullSphereData
+{
+    public float TexelSize;
+    public Vector4 Center = new Vector4();
+
+}
+

@@ -15,6 +15,9 @@ namespace ARP.Render
         public ShadowGlobalData GlobalShadowData                    = new ShadowGlobalData();
         private DirectionalShadowData[] _directionalShadowDatas     = new DirectionalShadowData[ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS];
         private Vector4[] cullingSpheres                            = new Vector4[ShadowConstants.MAX_CASACDE_COUNT];
+        private CullSphereData[] _cullSphereDatas                   = new CullSphereData[ShadowConstants.MAX_CASACDE_COUNT];    
+        private Vector4[] cullSpheresData                           = new Vector4[ShadowConstants.MAX_CASACDE_COUNT];
+        
         
         public int dirShadowCount                                  = 0;
 
@@ -143,13 +146,16 @@ namespace ARP.Render
                 if (index == 0)
                 {
                     Vector4 cullingSphere               = splitData.cullingSphere;
+                    float radius                        = cullingSphere.w;
+                    float texelSize                     = 2 * radius / tileSize;
                     cullingSphere.w                     *= cullingSphere.w;
-                    cullingSpheres[n]                   = cullingSphere;
+                    CullSphereData cullingSphereData    = new CullSphereData();
+                    cullingSphereData.Center            = cullingSphere;
+                    cullingSphereData.TexelSize         = texelSize;
+                    
+                    _cullSphereDatas[n]                 = cullingSphereData;
 
-                    float texelSize                     = 2 * cullingSphere.w / tileSize;
-                    texelSize                           *= MathConstant.SQRT2;
 
-                    data.TexelSize                      = texelSize;
                 }
                 
                 int tileIndex               = index * cascadeCount + n;
@@ -189,17 +195,29 @@ namespace ARP.Render
                 
                 Vector4 dsd                     = new Vector4();
                 dsd.x                           = data.ShadowStrength;
-                dsd.y                           = data.NormalShadowBias * data.TexelSize;
+                dsd.y                           = data.NormalShadowBias;
                 dsd.z                           = data.EnableSoftShadow ? 1 : 0;
                 dsd.w                           = data.TileIndex;
                 dirShadowData[i]                = dsd;
             }
+
+            for (int n = 0; n < cascadeCount; n++)
+            {
+                CullSphereData data     = _cullSphereDatas[n];
+                cullingSpheres[n]       = data.Center;
+
+                Vector4 cullingSphereData   = new Vector4();
+                cullingSphereData.x         = data.TexelSize;
+                
+                cullSpheresData[n]          = cullingSphereData;
+            }
             
             ShadowBuffer.SetGlobalVectorArray(ShadowConstants.DirectionalShadowDatasID, dirShadowData);
             ShadowBuffer.SetGlobalMatrixArray(ShadowConstants.ShadowToWorldCascadeMatID, worldToShadowMat);
-            ShadowBuffer.SetGlobalVectorArray(ShadowConstants.CullSphereDatasID, cullingSpheres);
+            ShadowBuffer.SetGlobalVectorArray(ShadowConstants.CullSpherePosID, cullingSpheres);
+            ShadowBuffer.SetGlobalVectorArray(ShadowConstants.CullSphereDataID, cullSpheresData);
             ShadowBuffer.SetGlobalInt(ShadowConstants.CascadeCountID, cascadeCount);
-            
+             
             context.ExecuteCommandBuffer(ShadowBuffer);
             ShadowBuffer.Clear();
         }

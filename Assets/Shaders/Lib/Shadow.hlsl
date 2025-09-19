@@ -8,7 +8,8 @@
 CBUFFER_START(ShadowBuffer)
     float4      _DirectionalShadowDatas[MAX_DIRECTIONS_SHADOW_LIGHTS];
     float4x4    _ShadowToWorldCascadeMat[MAX_DIRECTIONS_SHADOW_LIGHTS * MAX_DIRECTIONS_CASCADES];
-    float4      _CullSphereDatas[MAX_DIRECTIONS_CASCADES];
+    float4      _CullSpherePos[MAX_DIRECTIONS_CASCADES];
+    float4      _CullSphereData[MAX_DIRECTIONS_CASCADES];
     int         _CascadeCount;
     float4      _ShadowMapTexelSize;
 CBUFFER_END
@@ -40,7 +41,7 @@ int GetCascadeIndex(float3 worldpos)
     int i = 0;
     for (; i < _CascadeCount; i++)
     {
-        float4 cullsphere   = _CullSphereDatas[i];
+        float4 cullsphere   = _CullSpherePos[i];
         float3 center       = cullsphere.xyz;
         float distance      = GetDistace(center , worldpos);
         float radius        = cullsphere.w;
@@ -51,7 +52,6 @@ int GetCascadeIndex(float3 worldpos)
     }
     return i;
 }
-
 
 struct DirectionalShadowData
 {
@@ -77,7 +77,6 @@ DirectionalShadowData GetDirectionalShadowData(int index,Surface surface)
     
     return data;
 }
-
 
 half SampleCascadeShadowmap(float3 shadowpos, int enableSoftShadow)
 {
@@ -118,8 +117,11 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
 
     const float3 worldpos               = surface.worldPos;
     const float3 worldnormal            = surface.normal;
-    const float3 normalBias             = dirShadowData.normalbias;
-    const float bias                    = normalBias * worldnormal;
+
+    const float texelSize               = _CullSphereData[cascadeindex];
+    const float normalBias              = dirShadowData.normalbias * texelSize;
+    
+    const float3 bias                   = normalBias * worldnormal;
     const int enableSoftShadow          = dirShadowData.enableSoftShadow;
     
     float4 shadowPos                    = mul(shadowToWorldCascadeMat,float4(worldpos + bias,1));
