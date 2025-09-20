@@ -12,10 +12,11 @@ struct Surface
     float roughness;
     float metallic;
     float renderLayerMask;
+    float depth;
 }; 
 
 Surface GetSurface(float4 baseColor, float3 normal, float3 worldPos, float3 specColor,
-    float shininess, float roughness, float metallic, int renderLayerMask)
+    float shininess, float roughness, float metallic, int renderLayerMask, float depth)
 {
     Surface s;
 
@@ -29,6 +30,7 @@ Surface GetSurface(float4 baseColor, float3 normal, float3 worldPos, float3 spec
     s.roughness         = roughness;
     s.worldPos          = worldPos;
     s.renderLayerMask   = renderLayerMask;
+    s.depth             = depth;
     return s;
 }
 

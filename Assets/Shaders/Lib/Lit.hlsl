@@ -51,8 +51,9 @@ float4 LitPassFrag( VertexOutput input ) :SV_TARGET
     float4 baseColor    = baseMap * color;
     float3 worldPos     = input.worldPos;
     float3 normalWS     = normalize(input.NormalWS);
+    float depth         = -TransformWorldToView(worldPos).z;
     Surface surface     = GetSurface(baseColor,normalWS, worldPos, _SpecularColor,
-        _Shininess, _Roughness, _Metallic, asint(unity_RenderingLayer.x));
+        _Shininess, _Roughness, _Metallic, asint(unity_RenderingLayer.x),depth);
     
     half3 result        = GetIncomingLightsColors(surface);
      
