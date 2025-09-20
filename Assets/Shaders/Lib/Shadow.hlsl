@@ -12,6 +12,7 @@ CBUFFER_START(ShadowBuffer)
     float4      _CullSphereData[MAX_DIRECTIONS_CASCADES];
     int         _CascadeCount;
     float4      _ShadowMapTexelSize;
+    float4      _ShadowDistanceFade;
 CBUFFER_END
 
 #if defined(ENABLE_DIRECTIONAL_SOFTSHADOW_PCF3X3)
@@ -25,14 +26,17 @@ CBUFFER_END
     #define FLITER_SIZE 16
 #endif
 
-
-
 TEXTURE2D_SHADOW(_CascadeShadowMap);
 SAMPLER_CMP(sampler_CascadeShadowMap);
 
 float GetDistace(float3 pa, float3 pb)
 {
     return dot(pa - pb,pa - pb);
+}
+
+float GetFadeShadowStrength(float distance, float scale, float fade)
+{
+    return saturate((1.0 - distance * scale) * fade);
 }
 
 
@@ -64,7 +68,6 @@ struct DirectionalShadowData
 
 DirectionalShadowData GetDirectionalShadowData(int index,Surface surface)
 {
-
     float4 shadowdata           = _DirectionalShadowDatas[index];
     
     DirectionalShadowData data  = (DirectionalShadowData) 0;
@@ -99,7 +102,6 @@ half SampleCascadeShadowmap(float3 shadowpos, int enableSoftShadow)
 
         return shadow;
     }
-        
 }
 
 half GetDirectionalShadowAtten(int lightindex, Surface surface)
@@ -127,7 +129,7 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
     float4 shadowPos                    = mul(shadowToWorldCascadeMat,float4(worldpos + bias,1));
     shadowPos.xyz                       /= shadowPos.w;
     half shadowAtten                    = SampleCascadeShadowmap(shadowPos.xyz, enableSoftShadow);
-    half shadowStrength                 = dirShadowData.strength;
+    half shadowStrength                 = lerp(0, dirShadowData.strength,(cascadeindex < MAX_DIRECTIONS_CASCADES));
     
     return lerp(1 , shadowAtten, shadowStrength);
     
