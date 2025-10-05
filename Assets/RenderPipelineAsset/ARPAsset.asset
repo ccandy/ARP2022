@@ -12,3 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8030527da35e7410caa1209635886911, type: 3}
   m_Name: ARPAsset
   m_EditorClassIdentifier: 
+  shadowGlobalData:
+    ShadowDistance: 10
+    ShadowMapDepth: 32
+    ShadowMapSize: 1024
+    CascadeCount: 4
+    CascadeRaito: {x: 0.1, y: 0.25, z: 0.5}
+    FilterMode: 0

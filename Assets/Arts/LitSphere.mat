@@ -11,8 +11,7 @@ Material:
   m_Shader: {fileID: 4800000, guid: dd9268e04298d4a7395d6ccdaf1894fd, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - ARP_PBR_ON
+  m_ValidKeywords: []
   m_InvalidKeywords:
   - ARP_BLINNPHONG_ON
   - ARP_BlinnPhong
@@ -67,7 +66,7 @@ Material:
     m_Floats:
     - ARP_BlinnPhong: 0
     - ARP_BlinnPhong_ON: 1
-    - ARP_PBR: 1
+    - ARP_PBR: 0
     - _ARP_BlinnPhong: 1
     - _BumpScale: 1
     - _Cutoff: 0.5
@@ -81,7 +80,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Roughness: 0.389
-    - _Shininess: 4.88
+    - _Shininess: 34.21
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
