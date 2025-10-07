@@ -29,6 +29,12 @@ CBUFFER_END
 TEXTURE2D_SHADOW(_CascadeShadowMap);
 SAMPLER_CMP(sampler_CascadeShadowMap);
 
+float GetDistanceFadeStrength(float depth, float oneovershadowDistance, float oneoverfade)
+{
+    float temp = 1 - depth  * oneovershadowDistance;
+    return saturate(temp * oneoverfade);
+}
+
 float GetDistace(float3 pa, float3 pb)
 {
     return dot(pa - pb,pa - pb);
