@@ -40,8 +40,6 @@ namespace ARP.Render
         {
             additionalLightCount                    = 0;
             
-            _shadowRender.dirShadowCount            = 0;
-            
             _directionalLightRender.Init();
             _additionalLightRender.Init();
             
