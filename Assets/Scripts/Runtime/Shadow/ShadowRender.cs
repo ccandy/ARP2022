@@ -222,7 +222,7 @@ namespace ARP.Render
             ShadowBuffer.Clear();
         }
 
-        private void SendShadowTexelDataToGPU(ref ShadowGlobalData shadowGlobalData)
+        private void SendShadowTexelDataToGPU(ref ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
         {
             Vector4 shadowmapTexel  = new Vector4();
         
@@ -230,6 +230,9 @@ namespace ARP.Render
             shadowmapTexel.x        = shadowmapSize;
             shadowmapTexel.y        = 1f / shadowmapSize;
             ShadowBuffer.SetGlobalVector(ShadowConstants.ShadowMapTexelSizeID, shadowmapTexel);
+            context.ExecuteCommandBuffer(ShadowBuffer);
+            ShadowBuffer.Clear();
+            
         }
 
         private void SendAdditionalShadowDataToGPU(ref ScriptableRenderContext context,
@@ -244,10 +247,27 @@ namespace ARP.Render
             SendDirectionalLightDataToGPU(ref context, ref shadowGlobalData);
             SendAdditionalShadowDataToGPU(ref context, ref shadowGlobalData);
             
-            SendShadowTexelDataToGPU(ref shadowGlobalData);
-            
+            SendShadowTexelDataToGPU(ref context, ref shadowGlobalData);
+            SendGlobalShadowDataToGPU(ref context, ref shadowGlobalData);
+
         }
 
+        private void SendGlobalShadowDataToGPU(ref ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
+        {
+            float shadowDistance        = shadowGlobalData.ShadowDistance;
+            float shadowDistaceFade     = shadowGlobalData.ShadowDistanceFade;
+            
+            Vector4 shadowDistanceData  = new Vector4();
+            shadowDistanceData.x        = 1 / shadowDistance;
+            shadowDistanceData.y        = 1 / shadowDistaceFade;
+            shadowDistanceData.z        = shadowDistance * shadowDistance;
+            
+            ShadowBuffer.SetGlobalVector(ShadowConstants.ShadowDistanceDataID, shadowDistanceData);
+            
+            context.ExecuteCommandBuffer(ShadowBuffer);
+            ShadowBuffer.Clear();
+        }
+        
 
         private void GetShadowMap(ref ScriptableRenderContext context, int shadowmapID, int shadowmapSize, int shadowmapDepth)
         {

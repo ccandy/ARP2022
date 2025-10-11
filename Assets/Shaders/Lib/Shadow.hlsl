@@ -10,9 +10,9 @@ CBUFFER_START(ShadowBuffer)
     float4x4    _ShadowToWorldCascadeMat[MAX_DIRECTIONS_SHADOW_LIGHTS * MAX_DIRECTIONS_CASCADES];
     float4      _CullSpherePos[MAX_DIRECTIONS_CASCADES];
     float4      _CullSphereData[MAX_DIRECTIONS_CASCADES];
-    int         _CascadeCount;
     float4      _ShadowMapTexelSize;
-    float4      _ShadowDistanceFade;
+    float4      _ShadowDistanceData;
+    int         _CascadeCount;
 CBUFFER_END
 
 #if defined(ENABLE_DIRECTIONAL_SOFTSHADOW_PCF3X3)
@@ -136,6 +136,12 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
     shadowPos.xyz                       /= shadowPos.w;
     half shadowAtten                    = SampleCascadeShadowmap(shadowPos.xyz, enableSoftShadow);
     half shadowStrength                 = lerp(0, dirShadowData.strength,(cascadeindex < MAX_DIRECTIONS_CASCADES));
+
+    half depth                          = surface.depth;
+    half oneOverShadowDistance          = _ShadowDistanceData.x;
+    half oneOverShadowDistanceFade      = _ShadowDistanceData.y;
+    float shadowStrengthFade            = GetFadeShadowStrength(depth, oneOverShadowDistance, oneOverShadowDistanceFade);
+    shadowStrength                      *= shadowStrengthFade;
     
     return lerp(1 , shadowAtten, shadowStrength);
     

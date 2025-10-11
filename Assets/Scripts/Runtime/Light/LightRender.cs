@@ -82,6 +82,7 @@ namespace ARP.Render
 
             _directionalLightRender.SendToGPU(ref context, cmd);
             _additionalLightRender.SendToGPU(ref context, cmd);
+            
         }
     }
 }

@@ -35,6 +35,7 @@ public class ShadowGlobalData
     }
 
     public PCFFilter FilterMode = PCFFilter.PCF3x3;
+    [Range(0.1f,1f)]public float ShadowDistanceFade = 0.1f;
 }
 
 
