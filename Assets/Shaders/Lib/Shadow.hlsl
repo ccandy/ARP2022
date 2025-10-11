@@ -1,20 +1,8 @@
 #pragma once
 
-#define MAX_DIRECTIONS_SHADOW_LIGHTS 4
-#define MAX_DIRECTIONS_CASCADES 4
-
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Shadow/ShadowSamplingTent.hlsl"
+#include "Lib/ARPShadowDatas.hlsl"
 
-CBUFFER_START(ShadowBuffer)
-    float4      _DirectionalShadowDatas[MAX_DIRECTIONS_SHADOW_LIGHTS];
-    float4x4    _ShadowToWorldCascadeMat[MAX_DIRECTIONS_SHADOW_LIGHTS * MAX_DIRECTIONS_CASCADES];
-    float4      _CullSpherePos[MAX_DIRECTIONS_CASCADES];
-    float4      _CullSphereData[MAX_DIRECTIONS_CASCADES];
-    float4      _ShadowMapTexelSize;
-    float4      _ShadowDistanceData;
-    float4      _CascadeData;
-    int         _CascadeCount;
-CBUFFER_END
 
 #if defined(ENABLE_DIRECTIONAL_SOFTSHADOW_PCF3X3)
     #define SOFTSHDADOW_COMPUTESAMPLES_TENT SampleShadow_ComputeSamples_Tent_3x3
@@ -41,9 +29,14 @@ float GetDistace(float3 pa, float3 pb)
     return dot(pa - pb,pa - pb);
 }
 
-float GetFadeShadowStrength(float distance, float scale, float fade)
+
+float GetFadeShadowStrength(Surface surface)
 {
-    return saturate((1.0 - distance * scale) * fade);
+    half oneOverShadowDistance          = _ShadowDistanceData.x;
+    half oneOverShadowDistanceFade      = _ShadowDistanceData.y;
+    half depth                          = surface.depth;
+    
+    return saturate((1.0 - depth * oneOverShadowDistance) * oneOverShadowDistanceFade);
 }
 
 
@@ -62,30 +55,6 @@ int GetCascadeIndex(float3 worldpos)
         }
     }
     return i;
-}
-
-struct DirectionalShadowData
-{
-    float strength;
-    float normalbias;
-    int enableSoftShadow;
-
-    int CascadeIndex;
-};
-
-DirectionalShadowData GetDirectionalShadowData(int index,Surface surface)
-{
-    float4 shadowdata           = _DirectionalShadowDatas[index];
-    
-    DirectionalShadowData data  = (DirectionalShadowData) 0;
-    data.strength               = shadowdata.x;
-    data.normalbias             = shadowdata.y;
-    data.enableSoftShadow       = asint(shadowdata.z);
-
-    const float3 worldpos       = surface.worldPos;
-    data.CascadeIndex           = GetCascadeIndex(worldpos);
-    
-    return data;
 }
 
 half SampleCascadeShadowmap(float3 shadowpos, int enableSoftShadow)
@@ -117,8 +86,10 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
     {
         return 0;
     }
+
+    const int cascadeIndex              = GetCascadeIndex(surface.worldPos);
     
-    DirectionalShadowData dirShadowData = GetDirectionalShadowData(lightindex, surface);
+    DirectionalShadowData dirShadowData = GetDirectionalShadowData(lightindex, cascadeIndex);
     const int cascadeindex              = dirShadowData.CascadeIndex;
     
     int tileindex                       = lightindex * _CascadeCount + cascadeindex;
@@ -137,16 +108,13 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
     shadowPos.xyz                       /= shadowPos.w;
     half shadowAtten                    = SampleCascadeShadowmap(shadowPos.xyz, enableSoftShadow);
     half shadowStrength                 = lerp(0, dirShadowData.strength,(cascadeindex < MAX_DIRECTIONS_CASCADES));
-
-    half depth                          = surface.depth;
-    half oneOverShadowDistance          = _ShadowDistanceData.x;
-    half oneOverShadowDistanceFade      = _ShadowDistanceData.y;
-    float shadowStrengthFade            = GetFadeShadowStrength(depth, oneOverShadowDistance, oneOverShadowDistanceFade);
+    
+    float shadowStrengthFade            = GetFadeShadowStrength(surface);
     shadowStrength                      *= shadowStrengthFade;
 
     if (cascadeindex == _CascadeCount - 1)
     {
-        
+        float shadowDistanceSqr = _ShadowDistanceData;
     }
     
     

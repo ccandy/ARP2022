@@ -82,14 +82,14 @@ namespace ARP.Render
 
         private void SendGlobalShadowDataToGPU(ref ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
         {
-            SendShadowDistanceDataToGPU(ref context, ref shadowGlobalData);
-            SendCascadeDataToGPU(ref context, ref shadowGlobalData);
+            SendShadowDistanceDataToGPU(ref shadowGlobalData);
+            SendCascadeDataToGPU();
             
             context.ExecuteCommandBuffer(ShadowBuffer);
             ShadowBuffer.Clear();
         }
 
-        private void SendShadowDistanceDataToGPU(ref ScriptableRenderContext context,
+        private void SendShadowDistanceDataToGPU(
             ref ShadowGlobalData shadowGlobalData)
         {
             float shadowDistance        = shadowGlobalData.ShadowDistance;
@@ -102,7 +102,7 @@ namespace ARP.Render
             ShadowBuffer.SetGlobalVector(ShadowConstants.ShadowDistanceDataID, shadowDistanceData);
         }
 
-        private void SendCascadeDataToGPU(ref ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
+        private void SendCascadeDataToGPU()
         {
             if (cascadeData != null)
             {
