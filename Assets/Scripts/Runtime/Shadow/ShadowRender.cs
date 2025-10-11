@@ -18,10 +18,12 @@ namespace ARP.Render
         private CullSphereData[] _cullSphereDatas                   = new CullSphereData[ShadowConstants.MAX_CASACDE_COUNT];    
         private Vector4[] cullSpheresData                           = new Vector4[ShadowConstants.MAX_CASACDE_COUNT];
         
-        
-        public int dirShadowCount                                  = 0;
+        public int dirShadowCount                                   = 0;
 
         private CascadeData cascadeData;
+
+        private DirectionalShadowRender _directionalShadowRender;
+        
         
         public ShadowRender()
         {
@@ -32,27 +34,13 @@ namespace ARP.Render
                     name = bufferName
                 };
             }
+
+            _directionalShadowRender = new DirectionalShadowRender(ShadowBuffer);
         }
         
         private void SetupShadowData(ref VisibleLight visibleLight, int index)
         {
-
-            int maxDirectionalShadowCount = ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS;
-            
-            if (index >= maxDirectionalShadowCount)
-            {
-                return;
-            }
-
-            _directionalShadowDatas[index] = new DirectionalShadowData()
-            {
-                ShadowStrength          = visibleLight.light.shadowStrength,
-                NormalShadowBias        = visibleLight.light.shadowNormalBias,
-                ShadowNearPlane         = visibleLight.light.shadowNearPlane,
-                ShadowBias              = visibleLight.light.shadowBias,
-                EnableSoftShadow        = (visibleLight.light.shadows == LightShadows.Soft),
-                ShadowLightType         = visibleLight.lightType
-            };
+            _directionalShadowRender.SetupShadowData(ref visibleLight, index);
         }
         
         public void ConfigShadowDirectionalLightData(ref VisibleLight visibleLight, int index)
@@ -61,22 +49,11 @@ namespace ARP.Render
             dirShadowCount++;
         }
 
-        public void UpdateShadowCascadeData(ref ShadowGlobalData shadowGlobalData)
+        public void UpdateShadowData(ref ShadowGlobalData shadowGlobalData)
         {
-
-            if (dirShadowCount == 0)
-            {
-                return;
-            }
-            
-            int cascadeCount    = (int) shadowGlobalData.CascadeCount;
-            int shadowmapSize   = (int) shadowGlobalData.ShadowMapSize;
-            
-            cascadeData                     = new CascadeData();
-            int split                       = ShadowUtil.GetSplit(dirShadowCount * cascadeCount);
-            cascadeData.CascadeSplit        = split;
-            cascadeData.CascadeTileSize     = shadowmapSize / split;
+            _directionalShadowRender.UpdateShadowCascadeData(ref shadowGlobalData);
         }
+        
 
         public void UpdateAdditionalShadowData(int additionalLightCount)
         {
@@ -86,144 +63,9 @@ namespace ARP.Render
         
         public void Render(ref ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
         {
-            if (dirShadowCount == 0)
-            {
-                return;
-            }
-            
-            int shadowmapSize                           = (int) shadowGlobalData.ShadowMapSize;
-            int tileSize                                = cascadeData.CascadeTileSize;
-
-            GetShadowMap(ref context, ShadowConstants.CascadeShadowMapID, shadowmapSize, GlobalShadowData.ShadowMapDepth);
-            RenderUtil.SetupRenderTarget(ref context, ShadowConstants.CascadeShadowMapID, ShadowBuffer);
-            
-            for (int i = 0; i < dirShadowCount; ++i)
-            {
-                DirectionalShadowData data = _directionalShadowDatas[i];
-                if (data.ShadowLightType == LightType.Directional)
-                {
-                    RenderShadowCascade(ref context, ref cullingResults, ref shadowGlobalData,ref data, i,tileSize);
-                }
-            }
+            _directionalShadowRender.Render(ref context, ref cullingResults, ref shadowGlobalData);
         }
         
-        private void RenderShadowCascade(ref ScriptableRenderContext context,ref CullingResults cullingResults, 
-            ref ShadowGlobalData shadowGlobalData, ref DirectionalShadowData data, int index, int tileSize)
-        {
-            if (data == null)
-            {
-                Debug.LogErrorFormat("DirectionalShadowData at {0} is null", index);
-                return;
-            }
-            
-            int cascadeCount = (int)shadowGlobalData.CascadeCount;
-            
-            Matrix4x4 viewMatrix        = Matrix4x4.identity;
-            Matrix4x4 projectionMatrix  = Matrix4x4.identity;
-            Vector3 cascadeRatio        = shadowGlobalData.CascadeRaito;
-            float nearPlane             = data.ShadowNearPlane;
-            float shadowBias            = data.ShadowBias;
-            var shadowSettings =
-                new ShadowDrawingSettings(cullingResults, index,BatchCullingProjectionType.Orthographic);
-            
-            for (int n = 0; n < cascadeCount; n++)
-            {
-                if (!cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives
-                    (
-                        index,
-                        n,
-                        cascadeCount,
-                        cascadeRatio,
-                        tileSize,
-                        nearPlane,
-                        out viewMatrix,
-                        out projectionMatrix,
-                        out ShadowSplitData splitData
-                    ))
-                {
-                    continue;
-                }
-                shadowSettings.splitData = splitData;
-               
-                if (index == 0)
-                {
-                    Vector4 cullingSphere               = splitData.cullingSphere;
-                    float radius                        = cullingSphere.w;
-                    float texelSize                     = 2 * radius / tileSize;
-                    cullingSphere.w                     *= cullingSphere.w;
-                    CullSphereData cullingSphereData    = new CullSphereData();
-                    cullingSphereData.Center            = cullingSphere;
-                    cullingSphereData.TexelSize         = texelSize;
-                    
-                    _cullSphereDatas[n]                 = cullingSphereData;
-
-
-                }
-                
-                int tileIndex               = index * cascadeCount + n;
-                int cascadeSplit            = cascadeData.CascadeSplit;
-                Vector2 offset              = ShadowUtil.GetViewOffset(tileIndex, cascadeSplit);
-                ShadowUtil.SetViewPort(ref context, ShadowBuffer, offset, tileSize);
-                ShadowUtil.SetViewProjectMatrix(ref context, ShadowBuffer, viewMatrix, projectionMatrix);
-                ShadowUtil.SetShadowBias(ref context, ShadowBuffer, shadowBias);
-                context.DrawShadows(ref shadowSettings);
-                ShadowUtil.SetShadowBias(ref context, ShadowBuffer, 0);
-                
-                Matrix4x4 worldToViewMatrix                         = ShadowUtil.GetWorldToShadowMatrix(viewMatrix, projectionMatrix,cascadeSplit, offset);
-                data.ShadowMatrix[n]                                = worldToViewMatrix;
-                data.TileIndex                                      = tileIndex;
-            }
-        }
-
-        private void SendDirectionalLightDataToGPU(ref ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
-        {
-            int maxCascadeShadowDataCount       = ShadowConstants.MAX_CASCADE_SHDAOW_DATA_COUNT;
-            int maxDirShadow                    = ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS;
-            int cascadeCount                    = (int)shadowGlobalData.CascadeCount;
-            
-            Matrix4x4[] worldToShadowMat        = new Matrix4x4[maxCascadeShadowDataCount];
-            Vector4[] dirShadowData             = new Vector4[maxDirShadow];
-            
-            for (int i = 0; i < dirShadowCount; i++)
-            { 
-                DirectionalShadowData data  = _directionalShadowDatas[i];
-                Matrix4x4[] matrices        = data.ShadowMatrix;
-                
-                for (int j = 0; j < cascadeCount; j++)
-                {
-                    int matIndex                        = i * cascadeCount+ j;
-                    worldToShadowMat[matIndex]          = matrices[j];
-                }
-                
-                Vector4 dsd                     = new Vector4();
-                dsd.x                           = data.ShadowStrength;
-                dsd.y                           = data.NormalShadowBias;
-                dsd.z                           = data.EnableSoftShadow ? 1 : 0;
-                dsd.w                           = data.TileIndex;
-                dirShadowData[i]                = dsd;
-            }
-
-            for (int n = 0; n < cascadeCount; n++)
-            {
-                CullSphereData data     = _cullSphereDatas[n];
-                cullingSpheres[n]       = data.Center;
-
-                Vector4 cullingSphereData   = new Vector4();
-                cullingSphereData.x         = data.TexelSize;
-                
-                cullSpheresData[n]          = cullingSphereData;
-            }
-            
-            ShadowBuffer.SetGlobalVectorArray(ShadowConstants.DirectionalShadowDatasID, dirShadowData);
-            ShadowBuffer.SetGlobalMatrixArray(ShadowConstants.ShadowToWorldCascadeMatID, worldToShadowMat);
-            ShadowBuffer.SetGlobalVectorArray(ShadowConstants.CullSpherePosID, cullingSpheres);
-            ShadowBuffer.SetGlobalVectorArray(ShadowConstants.CullSphereDataID, cullSpheresData);
-            ShadowBuffer.SetGlobalInt(ShadowConstants.CascadeCountID, cascadeCount);
-             
-            context.ExecuteCommandBuffer(ShadowBuffer);
-            ShadowBuffer.Clear();
-        }
-
         private void SendShadowTexelDataToGPU(ref ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
         {
             Vector4 shadowmapTexel  = new Vector4();
@@ -231,6 +73,7 @@ namespace ARP.Render
             int shadowmapSize       = (int) shadowGlobalData.ShadowMapSize;
             shadowmapTexel.x        = shadowmapSize;
             shadowmapTexel.y        = 1f / shadowmapSize;
+            
             ShadowBuffer.SetGlobalVector(ShadowConstants.ShadowMapTexelSizeID, shadowmapTexel);
             context.ExecuteCommandBuffer(ShadowBuffer);
             ShadowBuffer.Clear();
@@ -246,7 +89,7 @@ namespace ARP.Render
         
         public void SendToGPU(ref ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
         {
-            SendDirectionalLightDataToGPU(ref context, ref shadowGlobalData);
+            _directionalShadowRender.SendToGPU(ref context, ref shadowGlobalData);
             SendAdditionalShadowDataToGPU(ref context, ref shadowGlobalData);
             
             SendShadowTexelDataToGPU(ref context, ref shadowGlobalData);
@@ -263,8 +106,15 @@ namespace ARP.Render
             shadowDistanceData.x        = 1 / shadowDistance;
             shadowDistanceData.y        = 1 / shadowDistaceFade;
             shadowDistanceData.z        = shadowDistance * shadowDistance;
-            
             ShadowBuffer.SetGlobalVector(ShadowConstants.ShadowDistanceDataID, shadowDistanceData);
+
+            if (cascadeData != null)
+            {
+                Vector4 cascadeDatas        = new Vector4();
+                cascadeDatas.x              = cascadeData.CascadeFadeScale;
+                cascadeDatas.y              = cascadeData.CascadeFadeRadius;
+                ShadowBuffer.SetGlobalVector(ShadowConstants.CascadeDataID, cascadeDatas);
+            }
             
             context.ExecuteCommandBuffer(ShadowBuffer);
             ShadowBuffer.Clear();
@@ -286,7 +136,7 @@ namespace ARP.Render
         public void CleanUP(ref ScriptableRenderContext context)
         {
             RenderUtil.ReleaseRenderTexture(ref context, ShadowBuffer, ShadowConstants.CascadeShadowMapID);
-            dirShadowCount = 0;
+            _directionalShadowRender.CleanUp();
         }
     }
 }

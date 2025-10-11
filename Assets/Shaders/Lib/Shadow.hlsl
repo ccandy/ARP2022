@@ -12,6 +12,7 @@ CBUFFER_START(ShadowBuffer)
     float4      _CullSphereData[MAX_DIRECTIONS_CASCADES];
     float4      _ShadowMapTexelSize;
     float4      _ShadowDistanceData;
+    float4      _CascadeData;
     int         _CascadeCount;
 CBUFFER_END
 
@@ -142,6 +143,12 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
     half oneOverShadowDistanceFade      = _ShadowDistanceData.y;
     float shadowStrengthFade            = GetFadeShadowStrength(depth, oneOverShadowDistance, oneOverShadowDistanceFade);
     shadowStrength                      *= shadowStrengthFade;
+
+    if (cascadeindex == _CascadeCount - 1)
+    {
+        
+    }
+    
     
     return lerp(1 , shadowAtten, shadowStrength);
     

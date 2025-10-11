@@ -35,4 +35,17 @@ public class RenderUtil
         context.ExecuteCommandBuffer(cmd);
         cmd.Clear();
     }
+
+    public static void GetShadowMap(CommandBuffer cmd, ref ScriptableRenderContext context, int shadowmapID, int shadowmapSize,
+        int shadowmapDepth)
+    {
+        if (cmd == null)
+        {
+            Debug.LogError("Command buffer not initialized, cannot create shadowmap");
+            return;
+        }
+        
+        GetRenderTexture(ref context, shadowmapID, shadowmapSize, shadowmapSize, shadowmapDepth, 
+            cmd, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+    }
 }

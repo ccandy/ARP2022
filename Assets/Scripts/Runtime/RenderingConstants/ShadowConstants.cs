@@ -16,6 +16,7 @@ namespace ARP.Constant
         public readonly static int CullSphereDataID                         = Shader.PropertyToID("_CullSphereData");
         public readonly static int CascadeShadowMapID                       = Shader.PropertyToID("_CascadeShadowMap");
         public readonly static int CascadeCountID                           = Shader.PropertyToID("_CascadeCount");
+        public readonly static int CascadeDataID                            = Shader.PropertyToID("_CascadeData");
         
         public readonly static int ShadowMapTexelSizeID                     = Shader.PropertyToID("_ShadowMapTexelSize");
         public readonly static int ShadowDistanceDataID                     = Shader.PropertyToID("_ShadowDistanceData");

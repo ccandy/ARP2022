@@ -35,7 +35,8 @@ public class ShadowGlobalData
     }
 
     public PCFFilter FilterMode = PCFFilter.PCF3x3;
-    [Range(0.1f,1f)]public float ShadowDistanceFade = 0.1f;
+    [Range(0.1f,1f)]public float ShadowDistanceFade     = 0.1f;
+    [Range(0.01f, 1f)] public float CascadeFade         = 0.1f;
 }
 
 
@@ -57,6 +58,8 @@ public class CascadeData
 {
     public int CascadeSplit;
     public int CascadeTileSize;
+    public float CascadeFadeRadius;
+    public float CascadeFadeScale;
 }
 
 public class CullSphereData

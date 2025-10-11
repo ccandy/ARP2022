@@ -62,8 +62,7 @@ namespace ARP.Render
                    _additionalLightRender.ConfigurelLightData(visibleLight);
                 }
             }
-            _shadowRender.UpdateShadowCascadeData(ref shadowGlobalData);
-            
+            _shadowRender.UpdateShadowData(ref shadowGlobalData);
         }
         
         private void CleanUp(ref ScriptableRenderContext context)
