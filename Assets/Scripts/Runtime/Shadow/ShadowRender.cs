@@ -128,19 +128,21 @@ namespace ARP.Render
             
             for (int n = 0; n < cascadeCount; n++)
             {
-                cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives
-                (
-                    index,
-                    n,
-                    cascadeCount,
-                    cascadeRatio,
-                    tileSize,
-                    nearPlane,
-                    out viewMatrix,
-                    out projectionMatrix,
-                    out ShadowSplitData splitData
-                );
-                
+                if (!cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives
+                    (
+                        index,
+                        n,
+                        cascadeCount,
+                        cascadeRatio,
+                        tileSize,
+                        nearPlane,
+                        out viewMatrix,
+                        out projectionMatrix,
+                        out ShadowSplitData splitData
+                    ))
+                {
+                    continue;
+                }
                 shadowSettings.splitData = splitData;
                
                 if (index == 0)
