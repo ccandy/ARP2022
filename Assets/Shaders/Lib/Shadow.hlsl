@@ -109,14 +109,13 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
     half shadowStrength                 = lerp(0, dirShadowData.strength,(cascadeindex < MAX_DIRECTIONS_CASCADES));
 
     ShadowDistaceData shadowDistanceData    =  GetShadowDistaceData();
-    float shadowStrengthFade                = GetFadeShadowStrength(surface, shadowDistanceData);
+    const float shadowStrengthFade          = GetFadeShadowStrength(surface, shadowDistanceData);
     shadowStrength                          *= shadowStrengthFade;
-
-   
+    
     if (cascadeindex == _CascadeCount - 1)
     {
         ShadowCascadeData shadowCascadeData = GetShadowCascadeData();
-        float cascadeFade                   = GetCascadeFadeStrength(shadowCascadeData, shadowDistanceData);
+        const float cascadeFade             = GetCascadeFadeStrength(shadowCascadeData, shadowDistanceData);
         shadowStrength                      *= cascadeFade;
     }
     
