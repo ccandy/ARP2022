@@ -131,12 +131,12 @@ namespace ARP.Render
                     Vector4 cullingSphere               = splitData.cullingSphere;
                     float radius                        = cullingSphere.w;
                     float texelSize                     = 2 * radius / tileSize;
-                    
                     cullingSphere.w                     *= cullingSphere.w;
                     if (n == cascadeCount - 1)
                     {
                         cascadeData.CascadeFadeRadius = 1 / cullingSphere.w;
                     }
+                    
                     CullSphereData cullingSphereData    = new CullSphereData();
                     cullingSphereData.Center            = cullingSphere;
                     cullingSphereData.TexelSize         = texelSize;

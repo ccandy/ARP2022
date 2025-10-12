@@ -119,12 +119,12 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
 
     ShadowDistaceData shadowDistanceData    =  GetShadowDistaceData();
     const float shadowStrengthFade          = GetFadeShadowStrength(surface, shadowDistanceData);
-   // shadowStrength                          *= shadowStrengthFade;
+    shadowStrength                          *= shadowStrengthFade;
     
     if (cascadeindex == _CascadeCount - 1)
     {
         ShadowCascadeData shadowCascadeData = GetShadowCascadeData();
-        const float cascadeFade             = GetCascadeFadeStrength(shadowCascadeData, 0, worldpos);
+        const float cascadeFade             = GetCascadeFadeStrength(shadowCascadeData, cascadeindex, worldpos);
         shadowStrength                      *= cascadeFade;
     }
     
