@@ -29,13 +29,22 @@ float GetFadeShadowStrength(Surface surface, ShadowDistaceData shadowDistaceData
     return GetShadowFadeStrength(depth, oneOverShadowDistance,oneOverShadowDistanceFade);
 }
 
-float GetCascadeFadeStrength(ShadowCascadeData cascadedata, ShadowDistaceData distacedata)
+float GetCascadeFadeStrength(ShadowCascadeData cascadedata,int cascadeIndex, float3 worldPos)
 {
-    const float shadowDistanceSqr       = distacedata.ShadowDistanceSqr;
     const float CascadeFadeRadius       = cascadedata.CascadeFadeRadius;
     const float CascadeFadeScale        = cascadedata.CascadeFadeScale;
 
-    return GetShadowFadeStrength(shadowDistanceSqr, CascadeFadeRadius,CascadeFadeScale);
+    const float3 center                 = _CullSpherePos[cascadeIndex].xyz;
+    const float radius                  = _CullSpherePos[cascadeIndex].z;
+    const float distance                = GetDistace(center,worldPos);
+
+    if (distance <radius)
+    {
+        return 1;
+    }else
+    {
+        return GetShadowFadeStrength(distance, CascadeFadeRadius,CascadeFadeScale);
+    }
 }
 
 
@@ -110,12 +119,12 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
 
     ShadowDistaceData shadowDistanceData    =  GetShadowDistaceData();
     const float shadowStrengthFade          = GetFadeShadowStrength(surface, shadowDistanceData);
-    shadowStrength                          *= shadowStrengthFade;
+   // shadowStrength                          *= shadowStrengthFade;
     
     if (cascadeindex == _CascadeCount - 1)
     {
         ShadowCascadeData shadowCascadeData = GetShadowCascadeData();
-        const float cascadeFade             = GetCascadeFadeStrength(shadowCascadeData, shadowDistanceData);
+        const float cascadeFade             = GetCascadeFadeStrength(shadowCascadeData, 0, worldpos);
         shadowStrength                      *= cascadeFade;
     }
     
