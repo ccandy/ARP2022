@@ -3,21 +3,6 @@
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Shadow/ShadowSamplingTent.hlsl"
 #include "Lib/ARPShadowDatas.hlsl"
 
-
-#if defined(ENABLE_DIRECTIONAL_SOFTSHADOW_PCF3X3)
-    #define SOFTSHDADOW_COMPUTESAMPLES_TENT SampleShadow_ComputeSamples_Tent_3x3
-    #define FLITER_SIZE 4
-#elif defined(ENABLE_DIRECTIONAL_SOFTSHADOW_PCF5X5)
-    #define SOFTSHDADOW_COMPUTESAMPLES_TENT SampleShadow_ComputeSamples_Tent_5x5
-    #define FLITER_SIZE 9
-#elif defined(ENABLE_DIRECTIONAL_SOFTSHADOW_PCF9X9)
-    #define SOFTSHDADOW_COMPUTESAMPLES_TENT SampleShadow_ComputeSamples_Tent_5x5
-    #define FLITER_SIZE 16
-#endif
-
-TEXTURE2D_SHADOW(_CascadeShadowMap);
-SAMPLER_CMP(sampler_CascadeShadowMap);
-
 float GetDistanceFadeStrength(float depth, float oneovershadowDistance, float oneoverfade)
 {
     float temp = 1 - depth  * oneovershadowDistance;
@@ -29,14 +14,28 @@ float GetDistace(float3 pa, float3 pb)
     return dot(pa - pb,pa - pb);
 }
 
-
-float GetFadeShadowStrength(Surface surface)
+float GetShadowFadeStrength(float distance, float scale, float fade)
 {
-    half oneOverShadowDistance          = _ShadowDistanceData.x;
-    half oneOverShadowDistanceFade      = _ShadowDistanceData.y;
+    return saturate((1.0 - distance * scale) * fade);
+}
+
+
+float GetFadeShadowStrength(Surface surface, ShadowDistaceData shadowDistaceData)
+{
+    half oneOverShadowDistance          = shadowDistaceData.OneOverShadowDistance;
+    half oneOverShadowDistanceFade      = shadowDistaceData.OneOverShadowDistanceFade;
     half depth                          = surface.depth;
-    
-    return saturate((1.0 - depth * oneOverShadowDistance) * oneOverShadowDistanceFade);
+
+    return GetShadowFadeStrength(depth, oneOverShadowDistance,oneOverShadowDistanceFade);
+}
+
+float GetCascadeFadeStrength(ShadowCascadeData cascadedata, ShadowDistaceData distacedata)
+{
+    const float shadowDistanceSqr       = distacedata.ShadowDistanceSqr;
+    const float CascadeFadeRadius       = cascadedata.CascadeFadeRadius;
+    const float CascadeFadeScale        = cascadedata.CascadeFadeScale;
+
+    return GetShadowFadeStrength(shadowDistanceSqr, CascadeFadeRadius,CascadeFadeScale);
 }
 
 
@@ -108,15 +107,18 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
     shadowPos.xyz                       /= shadowPos.w;
     half shadowAtten                    = SampleCascadeShadowmap(shadowPos.xyz, enableSoftShadow);
     half shadowStrength                 = lerp(0, dirShadowData.strength,(cascadeindex < MAX_DIRECTIONS_CASCADES));
-    
-    float shadowStrengthFade            = GetFadeShadowStrength(surface);
-    shadowStrength                      *= shadowStrengthFade;
 
+    ShadowDistaceData shadowDistanceData    =  GetShadowDistaceData();
+    float shadowStrengthFade                = GetFadeShadowStrength(surface, shadowDistanceData);
+    shadowStrength                          *= shadowStrengthFade;
+
+   
     if (cascadeindex == _CascadeCount - 1)
     {
-        float shadowDistanceSqr = _ShadowDistanceData;
+        ShadowCascadeData shadowCascadeData = GetShadowCascadeData();
+        float cascadeFade                   = GetCascadeFadeStrength(shadowCascadeData, shadowDistanceData);
+        shadowStrength                      *= cascadeFade;
     }
-    
     
     return lerp(1 , shadowAtten, shadowStrength);
     

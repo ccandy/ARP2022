@@ -195,12 +195,17 @@ namespace ARP.Render
                 
                 cullSpheresData[n]          = cullingSphereData;
             }
+
+            Vector4 cascadeDataVector   = new Vector4();
+            cascadeDataVector.x         = cascadeData.CascadeFadeRadius;
+            cascadeDataVector.y         = cascadeData.CascadeFadeScale;
             
             shadowBuffer.SetGlobalVectorArray(ShadowConstants.DirectionalShadowDatasID, dirShadowData);
             shadowBuffer.SetGlobalMatrixArray(ShadowConstants.ShadowToWorldCascadeMatID, worldToShadowMat);
             shadowBuffer.SetGlobalVectorArray(ShadowConstants.CullSpherePosID, cullingSpheres);
             shadowBuffer.SetGlobalVectorArray(ShadowConstants.CullSphereDataID, cullSpheresData);
             shadowBuffer.SetGlobalInt(ShadowConstants.CascadeCountID, cascadeCount);
+            shadowBuffer.SetGlobalVector(ShadowConstants.CascadeDataID, cascadeDataVector);
              
             context.ExecuteCommandBuffer(shadowBuffer);
             shadowBuffer.Clear();

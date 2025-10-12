@@ -14,6 +14,8 @@ float4      _CascadeData;
 int         _CascadeCount;
 CBUFFER_END
 
+TEXTURE2D_SHADOW(_CascadeShadowMap);
+SAMPLER_CMP(sampler_CascadeShadowMap);
 
 #if defined(ENABLE_DIRECTIONAL_SOFTSHADOW_PCF3X3)
     #define SOFTSHDADOW_COMPUTESAMPLES_TENT SampleShadow_ComputeSamples_Tent_3x3
@@ -65,6 +67,22 @@ ShadowDistaceData GetShadowDistaceData()
     data.OneOverShadowDistance      = _ShadowDistanceData.x;
     data.OneOverShadowDistanceFade  = _ShadowDistanceData.y;
     data.ShadowDistanceSqr          = _ShadowDistanceData.z;
+
+    return data;
+}
+
+struct ShadowCascadeData
+{
+    float CascadeFadeRadius;
+    float CascadeFadeScale;
+};
+
+ShadowCascadeData GetShadowCascadeData()
+{
+    ShadowCascadeData data;
+
+    data.CascadeFadeRadius = _CascadeData.x;
+    data.CascadeFadeScale = _CascadeData.y;
 
     return data;
 }
