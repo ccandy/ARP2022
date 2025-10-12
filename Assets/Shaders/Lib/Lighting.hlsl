@@ -50,6 +50,7 @@ half3 GetDirectionalLightsColor(Surface surface)
     half3 specular      = 0;
 
     half3 lightColor    = 0;
+    
 
     for(int i = 0; i < directonalCount; ++i)
     {

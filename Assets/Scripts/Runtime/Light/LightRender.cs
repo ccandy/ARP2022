@@ -38,7 +38,7 @@ namespace ARP.Render
 
         public void SetupLightData(ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
         {
-            additionalLightCount                    = 0;
+            additionalLightCount = 0;
             
             _directionalLightRender.Init();
             _additionalLightRender.Init();

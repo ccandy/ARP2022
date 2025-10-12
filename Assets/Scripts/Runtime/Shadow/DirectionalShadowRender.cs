@@ -161,6 +161,11 @@ namespace ARP.Render
 
         public void SendToGPU(ref ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
         {
+            if (dirShadowCount == 0)
+            {
+                return;
+            }
+            
             int maxCascadeShadowDataCount       = ShadowConstants.MAX_CASCADE_SHDAOW_DATA_COUNT;
             int maxDirShadow                    = ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS;
             int cascadeCount                    = (int)shadowGlobalData.CascadeCount;
@@ -208,7 +213,7 @@ namespace ARP.Render
             shadowBuffer.SetGlobalVectorArray(ShadowConstants.CullSphereDataID, cullSpheresData);
             shadowBuffer.SetGlobalInt(ShadowConstants.CascadeCountID, cascadeCount);
             shadowBuffer.SetGlobalVector(ShadowConstants.CascadeDataID, cascadeDataVector);
-             
+            
             context.ExecuteCommandBuffer(shadowBuffer);
             shadowBuffer.Clear();
         }

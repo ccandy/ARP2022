@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: ARPAsset
   m_EditorClassIdentifier: 
   shadowGlobalData:
-    ShadowDistance: 10
+    ShadowDistance: 22.27
     ShadowMapDepth: 32
     ShadowMapSize: 1024
     CascadeCount: 4
     CascadeRaito: {x: 0.1, y: 0.25, z: 0.5}
     FilterMode: 0
+    ShadowDistanceFade: 0.825
+    CascadeFade: 1

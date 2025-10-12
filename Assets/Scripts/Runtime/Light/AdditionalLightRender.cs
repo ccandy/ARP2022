@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 
 namespace ARP.Render
 {
-    public class AdditionalLightRender : LightRenderInterface
+    public class AdditionalLightRender : 
     {
         // Start is called before the first frame update
     
@@ -28,9 +28,10 @@ namespace ARP.Render
             
             float range                                 = visibleLight.range;
             additionalData.LightRange                   = 1 / Mathf.Max(range * range, 0.0001f);
-            
             additionalData.LightSpotAngle               = visibleLight.spotAngle;
 
+            _additionalLightDatas[additionalLightCount] = additionalData;
+            
             additionalLightCount++;
         }
 
@@ -42,6 +43,7 @@ namespace ARP.Render
         public void CleanUp()
         {
             System.Array.Clear(_additionalLightDatas, 0, _additionalLightDatas.Length);
+            additionalLightCount = 0;
         }
 
         public void SendToGPU(ref ScriptableRenderContext context, CommandBuffer cmd)

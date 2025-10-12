@@ -14,7 +14,6 @@ CBUFFER_START(LightBuffer)
     float4 _AdditionalLightsColor[MAX_ADDITION_LIGHTS];
     float4 _AdditionalLightsData[MAX_ADDITION_LIGHTS];
     float4 _AdditionalLightsAxis[MAX_ADDITION_LIGHTS];
-
     int _AdditionalLightCount;
 
 CBUFFER_END

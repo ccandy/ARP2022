@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace ARP.Render
-{   public class DirectionalLightRender : LightRenderInterface
+{   public class DirectionalLightRender : ShadowRenderInterface
     {
         
         private int directionalLightCount;

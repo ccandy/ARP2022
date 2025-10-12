@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public interface LightRenderInterface
+public interface ShadowRenderInterface
 {
    public void ConfigurelLightData(VisibleLight visibleLight);
    public void CleanUp();
