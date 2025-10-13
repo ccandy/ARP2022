@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace ARP.Render
-{   public class DirectionalLightRender : ShadowRenderInterface
+{   public class DirectionalLightRender : LightRenderInterface
     {
         
         private int directionalLightCount;
@@ -66,12 +66,6 @@ namespace ARP.Render
             cmd.SetGlobalInt(LightConstants.DirectonalLightAccountId, directionalLightCount);
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
-        }
-
-        public void Render(ref ScriptableRenderContext context, ref CullingResults cullingResults,
-            ref ShadowGlobalData shadowGlobalData)
-        {
-            
         }
     }
 }
