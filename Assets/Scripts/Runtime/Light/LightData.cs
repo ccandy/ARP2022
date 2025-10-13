@@ -15,5 +15,7 @@ public class AdditionalLightData : LightData
 {
     public float        LightRange;
     public float        LightSpotAngle;
+    public float        AngleRangeInv;
+    public float        OutterCos;
     public LightType    AdditionalLightType;
 }
