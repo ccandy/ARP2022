@@ -75,7 +75,9 @@ namespace ARP.Render
 
                     Vector4 lightData                           = new Vector4();
                     lightData.x                                 = additionalLightData.LightRange;
-                    lightData.y                                 = (int)additionalLightData.AdditionalLightType; 
+                    lightData.y                                 = (int)additionalLightData.AdditionalLightType;
+
+                    additionalightData[i]                       = lightData;
                     
                     Vector4 SpotAngles                          = new Vector4();
                     SpotAngles.x                                = additionalLightData.AngleRangeInv;
@@ -91,6 +93,7 @@ namespace ARP.Render
                 cmd.SetGlobalVectorArray(LightConstants.AdditionalLightsPosId, additionalLightPosition);
                 cmd.SetGlobalVectorArray(LightConstants.AdditionalLightsAxisId, additionalLightAxis);
                 cmd.SetGlobalVectorArray(LightConstants.SpotAnglesId, SpotAnglesData);
+                cmd.SetGlobalInt(LightConstants.AdditionalLightAccountId, additionalLightCount);
                
             }
             

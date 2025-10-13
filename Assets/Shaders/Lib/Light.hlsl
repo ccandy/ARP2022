@@ -14,6 +14,7 @@ CBUFFER_START(LightBuffer)
     float4 _AdditionalLightsColor[MAX_ADDITION_LIGHTS];
     float4 _AdditionalLightsData[MAX_ADDITION_LIGHTS];
     float4 _AdditionalLightsAxis[MAX_ADDITION_LIGHTS];
+    float4 _SpotAngles[MAX_ADDITION_LIGHTS];
     int _AdditionalLightCount;
 
 CBUFFER_END
@@ -47,9 +48,9 @@ float GetRangeAtten(float distanceSqr, float range)
    return POW2(saturate(1.0 - POW2(distanceSqr * range)));
 }
 
-float GetSpotAtten(float3 lightdir, float3 lightAxis)
+float GetSpotAtten(float3 lightdir, float3 lightAxis, float4 spotAngle)
 {
-    return saturate(dot(lightdir, lightAxis));
+    return POW2(saturate(dot(lightAxis, lightdir) *spotAngle.x +spotAngle.y));
 }
 
 
@@ -75,7 +76,7 @@ Light GetAdditionalLight(int index, Surface surface)
     float3 worldPos             = surface.worldPos;
     float3 lightPos             = light.lightPosition;
     
-    float3 lightVector          = worldPos - lightPos;
+    float3 lightVector          = lightPos - worldPos;
 
     const float3 lightDirection = normalize(lightVector);
     
@@ -84,12 +85,14 @@ Light GetAdditionalLight(int index, Surface surface)
     float distanceSqr           = max(dot(lightVector,lightVector), 0.0001f);
     
     float4 lightData            = _AdditionalLightsData[index];
-    float range                 = lightData.y;
+    float range                 = lightData.x;
 
     const float3 lightAxis      = _AdditionalLightsAxis[index];
+    const float4 spotAngles      = _SpotAngles[index];
     float rangeAtten            = GetRangeAtten(distanceSqr, range);
-    float spotAtten             = GetSpotAtten(lightDirection, lightAxis);
-    
+    float spotAtten             = GetSpotAtten(lightDirection, lightAxis, spotAngles);
+
+    light.attenuation           = rangeAtten * spotAtten / distanceSqr;
     
     return light;
 }

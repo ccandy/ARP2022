@@ -15,9 +15,6 @@ namespace ARP.Render
         private CommandBuffer cmd;
         private int additionalLightCount;
         
-        private int maxDirectionalLightCount    = LightConstants.MAX_DIRECTIONAL_LIGHTS;
-        private int maxAdditionalLightCount     = LightConstants.MAX_ADDITIONAL_LIGHTS;
-        private int maxSpotLightCount           = LightConstants.MAX_SPOT_LIGHTS;
         
         public LightRender()
         {

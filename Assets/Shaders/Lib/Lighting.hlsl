@@ -44,14 +44,14 @@ float3 GetBlinnPhongSpecular(Surface surface, Light light)
 
 half3 GetDirectionalLightsColor(Surface surface)
 {
-    int directonalCount = GetDirectionalLightCount();
+    
 
     half3 diffuse       = 0;
     half3 specular      = 0;
 
     half3 lightColor    = 0;
     
-
+    int directonalCount = GetDirectionalLightCount();
     for(int i = 0; i < directonalCount; ++i)
     {
         Light light = GetDirectionalLight(i);
@@ -75,14 +75,20 @@ half3 GetDirectionalLightsColor(Surface surface)
         lightColor              += finalCol;
     }
 
-    return lightColor;
-}
-
-half3 GetAdditionalLightColor(Surface surface)
-{
     int additionalLightCount = GetAdditionalLightCount();
 
-    half3 diffuse       = 0;
+    for (int j = 0; j < additionalLightCount; ++j)
+    {
+        Light light                     = GetAdditionalLight(j, surface);
+        diffuse                         = GetPhongDiffuse(surface, light);
+        const half3 lightIntensity      = light.lightColor;
+        const half lightAtten           = light.attenuation;
+        half3 finalCol                  = diffuse * surface.baseColor * lightIntensity * lightAtten;
+        lightColor                      += finalCol;
+    }
+    
+    
+    return lightColor;
 }
 
 
