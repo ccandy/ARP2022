@@ -33,6 +33,22 @@ struct Light
     
 };
 
+struct AdditionalLightData
+{
+    int LighType;
+    int LightRange;
+};
+
+AdditionalLightData GetAdditionalLightData(int index)
+{
+    AdditionalLightData data;
+
+    data.LightRange = _AdditionalLightsData[index].x;
+    data.LighType   = asint(_AdditionalLightsData[index].y);
+
+    return data;
+}
+
 int GetDirectionalLightCount()
 {
     return _DirectionalLightCount;
@@ -70,29 +86,28 @@ Light GetAdditionalLight(int index, Surface surface)
 {
     Light light = (Light)0;
 
-    light.lightColor            = _AdditionalLightsColor[index];
-    light.lightPosition         = _AdditionalLightsPos[index].xyz;
+    light.lightColor                = _AdditionalLightsColor[index];
+    light.lightPosition             = _AdditionalLightsPos[index].xyz;
 
-    float3 worldPos             = surface.worldPos;
-    float3 lightPos             = light.lightPosition;
+    float3 worldPos                 = surface.worldPos;
+    float3 lightPos                 = light.lightPosition;
     
-    float3 lightVector          = lightPos - worldPos;
+    float3 lightVector              = lightPos - worldPos;
 
-    const float3 lightDirection = normalize(lightVector);
+    const float3 lightDirection     = normalize(lightVector);
+    light.lightDirection            = lightDirection;
+
+    float distanceSqr               = max(dot(lightVector,lightVector), 0.0001f);
     
-    light.lightDirection        = lightDirection;
-
-    float distanceSqr           = max(dot(lightVector,lightVector), 0.0001f);
+    AdditionalLightData lightData   = GetAdditionalLightData(index);
     
-    float4 lightData            = _AdditionalLightsData[index];
-    float range                 = lightData.x;
+    float range                     = lightData.LightRange;
+    const float3 lightAxis          = _AdditionalLightsAxis[index];
+    const float4 spotAngles         = _SpotAngles[index];
+    float rangeAtten                = GetRangeAtten(distanceSqr, range);
+    float spotAtten                 = GetSpotAtten(lightDirection, lightAxis, spotAngles);
 
-    const float3 lightAxis      = _AdditionalLightsAxis[index];
-    const float4 spotAngles      = _SpotAngles[index];
-    float rangeAtten            = GetRangeAtten(distanceSqr, range);
-    float spotAtten             = GetSpotAtten(lightDirection, lightAxis, spotAngles);
-
-    light.attenuation           = rangeAtten * spotAtten / distanceSqr;
+    light.attenuation               = rangeAtten * spotAtten / distanceSqr;
     
     return light;
 }
