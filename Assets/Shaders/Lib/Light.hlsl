@@ -35,8 +35,8 @@ struct Light
 
 struct AdditionalLightData
 {
-    int LighType;
-    int LightRange;
+    int     LighType;
+    float   LightRange;
 };
 
 AdditionalLightData GetAdditionalLightData(int index)
@@ -61,7 +61,7 @@ int GetAdditionalLightCount()
 
 float GetRangeAtten(float distanceSqr, float range)
 {
-   return POW2(saturate(1.0 - POW2(distanceSqr * range)));
+    return max(0,1.0 - POW2(distanceSqr * range));
 }
 
 float GetSpotAtten(float3 lightdir, float3 lightAxis, float4 spotAngle)
@@ -105,8 +105,13 @@ Light GetAdditionalLight(int index, Surface surface)
     const float3 lightAxis          = _AdditionalLightsAxis[index];
     const float4 spotAngles         = _SpotAngles[index];
     float rangeAtten                = GetRangeAtten(distanceSqr, range);
-    float spotAtten                 = GetSpotAtten(lightDirection, lightAxis, spotAngles);
+    float spotAtten                 = 1;
 
+    const int lightType             = lightData.LighType;
+    if (lightType == 1)
+    {
+        spotAtten = GetSpotAtten(lightDirection, lightAxis, spotAngles);
+    }
     light.attenuation               = rangeAtten * spotAtten / distanceSqr;
     
     return light;

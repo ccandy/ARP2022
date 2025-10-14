@@ -83,7 +83,7 @@ half3 GetDirectionalLightsColor(Surface surface)
         diffuse                         = GetPhongDiffuse(surface, light);
         const half3 lightIntensity      = light.lightColor;
         const half lightAtten           = light.attenuation;
-        half3 finalCol                  = diffuse * surface.baseColor * lightIntensity * lightAtten;
+        const half3 finalCol            = diffuse * surface.baseColor * lightIntensity * lightAtten;
         lightColor                      += finalCol;
     }
     

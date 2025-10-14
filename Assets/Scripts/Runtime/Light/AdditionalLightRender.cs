@@ -26,7 +26,7 @@ namespace ARP.Render
             additionalData.AdditionalLightType          = visibleLight.lightType; 
             
             float range                                 = visibleLight.range;
-            additionalData.LightRange                   = 1 / Mathf.Max(range * range, 0.0001f);
+            additionalData.LightRange                   = 1.0f / Mathf.Max(range * range, 0.0001f);
             additionalData.LightSpotAngle               = visibleLight.spotAngle;
             
             float innerCos                              = Mathf.Cos(Mathf.Deg2Rad * 0.5f * visibleLight.light.innerSpotAngle);
