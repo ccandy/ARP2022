@@ -1,69 +1,6 @@
 #pragma once
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Shadow/ShadowSamplingTent.hlsl"
-#include "Lib/ARPShadowDatas.hlsl"
-
-float GetDistanceFadeStrength(float depth, float oneovershadowDistance, float oneoverfade)
-{
-    float temp = 1 - depth  * oneovershadowDistance;
-    return saturate(temp * oneoverfade);
-}
-
-float GetDistace(float3 pa, float3 pb)
-{
-    return dot(pa - pb,pa - pb);
-}
-
-float GetShadowFadeStrength(float distance, float scale, float fade)
-{
-    return saturate((1.0 - distance * scale) * fade);
-}
-
-
-float GetFadeShadowStrength(Surface surface, ShadowDistaceData shadowDistaceData)
-{
-    half oneOverShadowDistance          = shadowDistaceData.OneOverShadowDistance;
-    half oneOverShadowDistanceFade      = shadowDistaceData.OneOverShadowDistanceFade;
-    half depth                          = surface.depth;
-
-    return GetShadowFadeStrength(depth, oneOverShadowDistance,oneOverShadowDistanceFade);
-}
-
-float GetCascadeFadeStrength(ShadowCascadeData cascadedata,int cascadeIndex, float3 worldPos)
-{
-    const float CascadeFadeRadius       = cascadedata.CascadeFadeRadius;
-    const float CascadeFadeScale        = cascadedata.CascadeFadeScale;
-
-    const float3 center                 = _CullSpherePos[cascadeIndex].xyz;
-    const float radius                  = _CullSpherePos[cascadeIndex].z;
-    const float distance                = GetDistace(center,worldPos);
-
-    if (distance <radius)
-    {
-        return 1;
-    }else
-    {
-        return GetShadowFadeStrength(distance, CascadeFadeRadius,CascadeFadeScale);
-    }
-}
-
-
-int GetCascadeIndex(float3 worldpos)
-{
-    int i = 0;
-    for (; i < _CascadeCount; i++)
-    {
-        float4 cullsphere   = _CullSpherePos[i];
-        float3 center       = cullsphere.xyz;
-        float distance      = GetDistace(center , worldpos);
-        float radius        = cullsphere.w;
-        if (distance < radius)
-        {
-            break;
-        }
-    }
-    return i;
-}
 
 half SampleCascadeShadowmap(float3 shadowpos, int enableSoftShadow)
 {
@@ -88,7 +25,7 @@ half SampleCascadeShadowmap(float3 shadowpos, int enableSoftShadow)
     }
 }
 
-half GetDirectionalShadowAtten(int lightindex, Surface surface)
+half GetDirectionalShadowAtten(int lightindex, Surface surface, ShadowStrengthCascadeData shadowStrengthCascadeData)
 {
     if (lightindex >= MAX_DIRECTIONS_SHADOW_LIGHTS)
     {
@@ -97,8 +34,8 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
 
     const int cascadeIndex              = surface.cascadeIndex;
     
-    DirectionalShadowData dirShadowData = GetDirectionalShadowData(lightindex, cascadeIndex);
-    const int cascadeindex              = dirShadowData.CascadeIndex;
+    DirectionalShadowData dirShadowData = GetDirectionalShadowData(lightindex);
+    const int cascadeindex              = shadowStrengthCascadeData.cascadeIndex;
     
     int tileindex                       = lightindex * _CascadeCount + cascadeindex;
     float4x4 shadowToWorldCascadeMat    = _ShadowToWorldCascadeMat[tileindex];
@@ -116,17 +53,7 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
     shadowPos.xyz                       /= shadowPos.w;
     half shadowAtten                    = SampleCascadeShadowmap(shadowPos.xyz, enableSoftShadow);
     half shadowStrength                 = lerp(0, dirShadowData.strength,(cascadeindex < MAX_DIRECTIONS_CASCADES));
-
-    ShadowDistaceData shadowDistanceData    =  GetShadowDistaceData();
-    const float shadowStrengthFade          = GetFadeShadowStrength(surface, shadowDistanceData);
-    shadowStrength                          *= shadowStrengthFade;
-    
-    if (cascadeindex == _CascadeCount - 1)
-    {
-        ShadowCascadeData shadowCascadeData = GetShadowCascadeData();
-        const float cascadeFade             = GetCascadeFadeStrength(shadowCascadeData, cascadeindex, worldpos);
-        shadowStrength                      *= cascadeFade;
-    }
+    shadowStrength                      *= shadowStrengthCascadeData.shadowStrengthFade;
     
     return lerp(1 , shadowAtten, shadowStrength);
     

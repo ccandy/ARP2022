@@ -48,16 +48,17 @@ VertexOutput LitPassVertex( VertexInput input )
 
 float4 LitPassFrag( VertexOutput input ) :SV_TARGET
 {
-    const float4 baseMap      = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
-    const float4 color        = _Color;
-    const float4 baseColor    = baseMap * color;
-    const float3 worldPos     = input.worldPos;
-    const float3 normalWS     = normalize(input.NormalWS);
-    const float depth         = -TransformWorldToView(worldPos).z;
-    Surface surface     = GetSurface(baseColor,normalWS, worldPos, _SpecularColor,
-        _Shininess, _Roughness, _Metallic, asint(unity_RenderingLayer.x),depth, input.cascadeIndex) ;
+    const float4 baseMap            = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+    const float4 color              = _Color;
+    const float4 baseColor          = baseMap * color;
+    const float3 worldPos           = input.worldPos;
+    const float3 normalWS           = normalize(input.NormalWS);
+    const float depth               = -TransformWorldToView(worldPos).z;
+    Surface surface                 = GetSurface(baseColor,normalWS, worldPos, _SpecularColor,
+                                                _Shininess, _Roughness, _Metallic, asint(unity_RenderingLayer.x),depth) ;
+    ShadowStrengthCascadeData cascadeData = GetShadowStrengthCascadeData(surface);
     
-    half3 result        = GetIncomingLightsColors(surface);
+    half3 result        = GetIncomingLightsColors(surface, cascadeData);
      
     return half4(result, surface.alpha);
 }

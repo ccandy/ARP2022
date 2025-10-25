@@ -42,7 +42,7 @@ float3 GetBlinnPhongSpecular(Surface surface, Light light)
     return specular;
 }
 
-half3 GetDirectionalLightsColor(Surface surface)
+half3 GetDirectionalLightsColor(Surface surface, ShadowStrengthCascadeData shadowStrengthData)
 {
     half3 diffuse       = 0;
     half3 specular      = 0;
@@ -67,7 +67,7 @@ half3 GetDirectionalLightsColor(Surface surface)
             #endif
         #endif
 
-        half shadowAtten        = GetDirectionalShadowAtten(i, surface);
+        half shadowAtten        = GetDirectionalShadowAtten(i, surface,shadowStrengthData);
         half3 lightIntensity    = light.lightColor * shadowAtten;
         half3 finalCol          = (diffuse * surface.baseColor + specular) * lightIntensity;
         lightColor              += finalCol;
@@ -90,10 +90,10 @@ half3 GetDirectionalLightsColor(Surface surface)
 }
 
 
-half3 GetIncomingLightsColors(Surface surface)
+half3 GetIncomingLightsColors(Surface surface, ShadowStrengthCascadeData shadowStrengthData)
 {
     half3 res                       = 0;
-    half3 directionallightColor     = GetDirectionalLightsColor(surface);
+    half3 directionallightColor     = GetDirectionalLightsColor(surface,shadowStrengthData);
     res += directionallightColor;
     return res;
 }
