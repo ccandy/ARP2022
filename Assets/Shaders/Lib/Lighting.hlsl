@@ -44,8 +44,6 @@ float3 GetBlinnPhongSpecular(Surface surface, Light light)
 
 half3 GetDirectionalLightsColor(Surface surface)
 {
-    
-
     half3 diffuse       = 0;
     half3 specular      = 0;
 

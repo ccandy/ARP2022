@@ -29,31 +29,33 @@ struct VertexOutput
     float2 uv           : VAR_BASE_UV;
     float3 NormalWS     : NORMAL;
     float3 worldPos     : TEXCOORD0;
+    float cascadeIndex  : TEXCOORD1;
 };
 
 VertexOutput LitPassVertex( VertexInput input )
 {
     VertexOutput output;
 
-    float3 worldPos     = TransformObjectToWorld(input.PositionOS.xyz);
-    output.PositionCS   = TransformWorldToHClip(worldPos);
-    output.uv           = TRANSFORM_TEX(input.uv,_MainTex);
-    output.NormalWS     = TransformObjectToWorldNormal(input.Normal);
-    output.worldPos     = worldPos;
+    const float3 worldPos       = TransformObjectToWorld(input.PositionOS.xyz);
+    output.PositionCS           = TransformWorldToHClip(worldPos);
+    output.uv                   = TRANSFORM_TEX(input.uv,_MainTex);
+    output.NormalWS             = TransformObjectToWorldNormal(input.Normal);
+    output.worldPos             = worldPos;
+    output.cascadeIndex         = GetCascadeIndex(worldPos);
     return output;
 }
 
 
 float4 LitPassFrag( VertexOutput input ) :SV_TARGET
 {
-    float4 baseMap      = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
-    float4 color        = _Color;
-    float4 baseColor    = baseMap * color;
-    float3 worldPos     = input.worldPos;
-    float3 normalWS     = normalize(input.NormalWS);
-    float depth         = -TransformWorldToView(worldPos).z;
+    const float4 baseMap      = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+    const float4 color        = _Color;
+    const float4 baseColor    = baseMap * color;
+    const float3 worldPos     = input.worldPos;
+    const float3 normalWS     = normalize(input.NormalWS);
+    const float depth         = -TransformWorldToView(worldPos).z;
     Surface surface     = GetSurface(baseColor,normalWS, worldPos, _SpecularColor,
-        _Shininess, _Roughness, _Metallic, asint(unity_RenderingLayer.x),depth);
+        _Shininess, _Roughness, _Metallic, asint(unity_RenderingLayer.x),depth, input.cascadeIndex) ;
     
     half3 result        = GetIncomingLightsColors(surface);
      

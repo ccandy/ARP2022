@@ -95,7 +95,7 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface)
         return 0;
     }
 
-    const int cascadeIndex              = GetCascadeIndex(surface.worldPos);
+    const int cascadeIndex              = surface.cascadeIndex;
     
     DirectionalShadowData dirShadowData = GetDirectionalShadowData(lightindex, cascadeIndex);
     const int cascadeindex              = dirShadowData.CascadeIndex;
