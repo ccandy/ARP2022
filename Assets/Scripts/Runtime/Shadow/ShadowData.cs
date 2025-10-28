@@ -40,17 +40,29 @@ public class ShadowGlobalData
 }
 
 
-[System.Serializable]
-public class DirectionalShadowData
+
+//[System.Serializable]
+public class ShadowData
 {
     public float        ShadowStrength;
     public float        ShadowNearPlane;
     public float        NormalShadowBias;
     public float        ShadowBias;
-    public Matrix4x4[]  ShadowMatrix = new Matrix4x4[ShadowConstants.MAX_CASACDE_COUNT];
     public int          TileIndex;
     public bool         EnableSoftShadow;
     public LightType    ShadowLightType;
+}
+[System.Serializable]
+public class DirectionalShadowData:ShadowData
+{
+    public Matrix4x4[]  ShadowMatrix = new Matrix4x4[ShadowConstants.MAX_CASACDE_COUNT];
+}
+
+[System.Serializable]
+
+public class AdditionalShadowData:ShadowData
+{
+    public Matrix4x4 ShadowMatrix = Matrix4x4.identity;
 }
 
 

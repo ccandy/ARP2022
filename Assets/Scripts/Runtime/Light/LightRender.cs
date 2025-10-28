@@ -55,6 +55,10 @@ namespace ARP.Render
                 else
                 {
                    _additionalLightRender.ConfigurelLightData(visibleLight);
+                   if (visibleLight.light.shadows != LightShadows.None)
+                   {
+                       _shadowRender.ConfigShadowAdditionalLightData(ref visibleLight, i);
+                   }
                 }
             }
             _shadowRender.UpdateShadowData(ref shadowGlobalData);

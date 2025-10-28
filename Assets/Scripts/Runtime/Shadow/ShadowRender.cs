@@ -14,7 +14,7 @@ namespace ARP.Render
         private CascadeData             cascadeData;
 
         private DirectionalShadowRender _directionalShadowRender;
-        
+        private AdditionalShadowRender _additionalShadowRender;
         
         public ShadowRender()
         {
@@ -27,18 +27,19 @@ namespace ARP.Render
             }
 
             _directionalShadowRender = new DirectionalShadowRender(ShadowBuffer);
-        }
-        
-        private void SetupShadowData(ref VisibleLight visibleLight, int index)
-        {
-            _directionalShadowRender.SetupShadowData(ref visibleLight, index);
+            _additionalShadowRender = new AdditionalShadowRender(ShadowBuffer);
         }
         
         public void ConfigShadowDirectionalLightData(ref VisibleLight visibleLight, int index)
         {
-            SetupShadowData(ref visibleLight, index);
+            _directionalShadowRender.SetupShadowData(ref visibleLight, index);
         }
 
+        public void ConfigShadowAdditionalLightData(ref VisibleLight visibleLight, int index)
+        {
+            _additionalShadowRender.SetupShadowData(ref visibleLight, index);
+        }
+        
         public void UpdateShadowData(ref ShadowGlobalData shadowGlobalData)
         {
             _directionalShadowRender.UpdateShadowCascadeData(ref shadowGlobalData);
@@ -47,6 +48,7 @@ namespace ARP.Render
         public void Render(ref ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
         {
             _directionalShadowRender.Render(ref context, ref cullingResults, ref shadowGlobalData);
+            _additionalShadowRender.Render(ref context, ref cullingResults, ref shadowGlobalData);
         }
         
         private void SendShadowTexelDataToGPU(ref ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
@@ -117,6 +119,7 @@ namespace ARP.Render
         {
             RenderUtil.ReleaseRenderTexture(ref context, ShadowBuffer, ShadowConstants.CascadeShadowMapID);
             _directionalShadowRender.CleanUp();
+            _additionalShadowRender.CleanUp();
         }
     }
 }

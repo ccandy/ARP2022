@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using ARP.Constant;
+using ARP.Interface;
 using UnityEngine;
 using UnityEngine.Rendering;
 using ARP.Util;
 
 namespace ARP.Render
 {
-    public class DirectionalShadowRender 
+    public class DirectionalShadowRender:ShadowRenderInterface 
     {
 
         private DirectionalShadowData[] _directionalShadowDatas     = new DirectionalShadowData[ShadowConstants.MAX_DIRECTIONS_SHADOW_LIGHTS];
