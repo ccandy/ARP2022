@@ -26,15 +26,17 @@ namespace ARP.Render
             additionalData.LightColor                   = visibleLight.finalColor;
             additionalData.AdditionalLightType          = visibleLight.lightType; 
             
+            float spotAngle                             = visibleLight.spotAngle;
+            
             float range                                 = visibleLight.range;
             additionalData.LightRange                   = 1.0f / Mathf.Max(range * range, 0.0001f);
-            additionalData.LightSpotAngle               = visibleLight.spotAngle;
+            additionalData.LightSpotAngle               = spotAngle;
             
             float innerCos                              = Mathf.Cos(Mathf.Deg2Rad * 0.5f * visibleLight.light.innerSpotAngle);
-            float outerCos                              = Mathf.Cos(Mathf.Deg2Rad * 0.5f * visibleLight.spotAngle);
+            float outerCos                              = Mathf.Cos(Mathf.Deg2Rad * 0.5f * spotAngle);
             float angleRangeInv                         = 1f / Mathf.Max(innerCos - outerCos, 0.001f);
             additionalData.AngleRangeInv                = angleRangeInv;
-            additionalData.OutterCos                    = -outerCos * angleRangeInv;
+            additionalData.OutterCos                    = outerCos;
             
             _additionalLightDatas[additionalLightCount] = additionalData;
             

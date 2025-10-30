@@ -20,13 +20,14 @@ namespace ARP.Constant
         public readonly static int CascadeCountID                           = Shader.PropertyToID("_CascadeCount");
         public readonly static int CascadeDataID                            = Shader.PropertyToID("_CascadeData");
         
-        public readonly static int ShadowMapTexelSizeID                     = Shader.PropertyToID("_ShadowMapTexelSize");
+        public readonly static int CascadeShadowMapTexelSizeID              = Shader.PropertyToID("_CascadeShadowMapTexelSize");
         public readonly static int ShadowDistanceDataID                     = Shader.PropertyToID("_ShadowDistanceData");
         
         
         public readonly static int ShadowMapID                              = Shader.PropertyToID("_ShadowMap");
         public readonly static int ShadowToWorldMatID                       = Shader.PropertyToID("_ShadowToWorldMat");
         public readonly static int AdditiaonlShadowDatasID                  = Shader.PropertyToID("_AdditiaonlShadowDatas");
+        public readonly static int ShadowMapTexelSizeID                     = Shader.PropertyToID("_ShadowMapTexelSize");
 
     }
 }

@@ -81,13 +81,22 @@ namespace ARP.Render
 
       private void SetupKeyWords(ref ShadowGlobalData shadowGlobalData)
       {
-         string[] softshadowKeyworkds  = ShadowKeywords.DirectionalSoftShadowKeyword;
          int enableSoftKeywords        = (int)shadowGlobalData.FilterMode;
-         string enabledSoftKeywords    = softshadowKeyworkds[enableSoftKeywords];
+         string[] softshadowKeyworkds  = ShadowKeywords.DirectionalSoftShadowKeyword;
          
-         cmd.EnableShaderKeyword(enabledSoftKeywords);
+         for (int i = 0; i < softshadowKeyworkds.Length; i++)
+         {
+            string keyword    = softshadowKeyworkds[i];
+            if (i == enableSoftKeywords)
+            {
+               cmd.EnableShaderKeyword(keyword);
+            }
+            else
+            {
+               cmd.DisableShaderKeyword(keyword);
+            }
+         }
          ExecuteCommandBuffer(cmd);
-         
       }
       
       void Setup()

@@ -2,20 +2,30 @@
 
 #define MAX_DIRECTIONS_SHADOW_LIGHTS 4
 #define MAX_DIRECTIONS_CASCADES 4
+#define MAX_ADDITIONAL_SHADOW_LIGHTS 12
 
 CBUFFER_START(ShadowBuffer)
     float4      _DirectionalShadowDatas[MAX_DIRECTIONS_SHADOW_LIGHTS];
-float4x4    _ShadowToWorldCascadeMat[MAX_DIRECTIONS_SHADOW_LIGHTS * MAX_DIRECTIONS_CASCADES];
-float4      _CullSpherePos[MAX_DIRECTIONS_CASCADES];
-float4      _CullSphereData[MAX_DIRECTIONS_CASCADES];
-float4      _ShadowMapTexelSize;
-float4      _ShadowDistanceData;
-float4      _CascadeData;
-int         _CascadeCount;
+    float4x4    _ShadowToWorldCascadeMat[MAX_DIRECTIONS_SHADOW_LIGHTS * MAX_DIRECTIONS_CASCADES];
+    float4      _CullSpherePos[MAX_DIRECTIONS_CASCADES];
+    float4      _CullSphereData[MAX_DIRECTIONS_CASCADES];
+    float4      _CascadeShadowMapTexelSize;
+    float4      _ShadowDistanceData;
+    float4      _CascadeData;
+
+    float4      _AdditiaonlShadowDatas[MAX_ADDITIONAL_SHADOW_LIGHTS];
+    float4      _ShadowMapTexelSize;
+    float4x4    _ShadowToWorldMat[MAX_ADDITIONAL_SHADOW_LIGHTS];
+
+    int         _CascadeCount;
+
 CBUFFER_END
 
 TEXTURE2D_SHADOW(_CascadeShadowMap);
 SAMPLER_CMP(sampler_CascadeShadowMap);
+
+TEXTURE2D_SHADOW(_ShadowMap);
+SAMPLER_CMP(sampler_ShadowMap);
 
 #if defined(ENABLE_DIRECTIONAL_SOFTSHADOW_PCF3X3)
     #define SOFTSHDADOW_COMPUTESAMPLES_TENT SampleShadow_ComputeSamples_Tent_3x3
@@ -23,13 +33,13 @@ SAMPLER_CMP(sampler_CascadeShadowMap);
 #elif defined(ENABLE_DIRECTIONAL_SOFTSHADOW_PCF5X5)
     #define SOFTSHDADOW_COMPUTESAMPLES_TENT SampleShadow_ComputeSamples_Tent_5x5
     #define FLITER_SIZE 9
-#elif defined(ENABLE_DIRECTIONAL_SOFTSHADOW_PCF9X9)
-    #define SOFTSHDADOW_COMPUTESAMPLES_TENT SampleShadow_ComputeSamples_Tent_5x5
+#elif defined(ENABLE_DIRECTIONAL_SOFTSHADOW_PCF7X7)
+    #define SOFTSHDADOW_COMPUTESAMPLES_TENT SampleShadow_ComputeSamples_Tent_7x7
     #define FLITER_SIZE 16
 #endif
 
 
-struct DirectionalShadowData
+struct ShadowData
 {
     float strength;
     float normalbias;
@@ -37,15 +47,28 @@ struct DirectionalShadowData
 };
 
 
-DirectionalShadowData GetDirectionalShadowData(int index)
+ShadowData GetDirectionalShadowData(int index)
 {
     float4 shadowdata           = _DirectionalShadowDatas[index];
     
-    DirectionalShadowData data  = (DirectionalShadowData) 0;
+    ShadowData data             = (ShadowData) 0;
     data.strength               = shadowdata.x;
     data.normalbias             = shadowdata.y;
     data.enableSoftShadow       = asint(shadowdata.z);
     
+    return data;
+}
+
+
+ShadowData GetAdditionalShadowData(int index)
+{
+    float4 shadowdata           = _AdditiaonlShadowDatas[index];
+    
+    ShadowData data             = (ShadowData) 0;
+    data.strength               = shadowdata.x;
+    data.normalbias             = shadowdata.y;
+    data.enableSoftShadow       = asint(shadowdata.z);
+
     return data;
 }
 

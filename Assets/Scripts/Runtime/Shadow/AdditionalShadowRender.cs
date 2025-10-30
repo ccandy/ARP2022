@@ -138,8 +138,6 @@ namespace ARP.Render
         {
             additionalShadowCount = 0;
         }
-        
-        
     }
 }
     

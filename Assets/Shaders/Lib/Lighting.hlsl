@@ -72,22 +72,44 @@ half3 GetDirectionalLightsColor(Surface surface, ShadowStrengthCascadeData shado
         half3 finalCol          = (diffuse * surface.baseColor + specular) * lightIntensity;
         lightColor              += finalCol;
     }
-
-    int additionalLightCount = GetAdditionalLightCount();
-
-    for (int j = 0; j < additionalLightCount; ++j)
-    {
-        Light light                     = GetAdditionalLight(j, surface);
-        diffuse                         = GetPhongDiffuse(surface, light);
-        const half3 lightIntensity      = light.lightColor;
-        const half lightAtten           = light.attenuation;
-        const half3 finalCol            = diffuse * surface.baseColor * lightIntensity * lightAtten;
-        lightColor                      += finalCol;
-    }
-    
     
     return lightColor;
 }
+
+half3 GetAdditionalLightsColor(Surface surface, ShadowStrengthCascadeData shadowStrengthData)
+{
+    half3 diffuse       = 0;
+    half3 specular      = 0;
+
+    half3 lightColor    = 0;
+
+    int additionalLightCount = GetAdditionalLightCount();
+    for(int i = 0; i < additionalLightCount; ++i)
+    {
+        Light light = GetAdditionalLight(i, surface);
+        #if defined(ARP_PBR_ON)
+            BRDF brdf   = GetBRDF(surface, light);
+            diffuse     = brdf.Diffuse;
+            specular    = brdf.Specular;
+        #else
+            diffuse = GetPhongDiffuse(surface, light);
+            #if defined(ARP_BlinnPhong_ON)
+                specular = GetBlinnPhongSpecular(surface, light);
+            #else
+                specular = GetPhongSpecular(surface, light);
+            #endif
+        #endif
+
+        half shadowAtten        = GetAdditionalShadowAtten(i, surface);
+        half3 lightIntensity    = light.lightColor * light.attenuation;
+        half3 finalCol          = (diffuse * surface.baseColor + specular)  * lightIntensity * shadowAtten;
+        lightColor              += finalCol;
+    }
+
+    return lightColor;
+    
+}
+
 
 
 half3 GetIncomingLightsColors(Surface surface, ShadowStrengthCascadeData shadowStrengthData)
@@ -95,6 +117,9 @@ half3 GetIncomingLightsColors(Surface surface, ShadowStrengthCascadeData shadowS
     half3 res                       = 0;
     half3 directionallightColor     = GetDirectionalLightsColor(surface,shadowStrengthData);
     res += directionallightColor;
+
+    half3 additionalLightColor      = GetAdditionalLightsColor(surface,shadowStrengthData);
+    res += additionalLightColor;
     return res;
 }
 

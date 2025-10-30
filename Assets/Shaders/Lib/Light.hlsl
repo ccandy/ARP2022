@@ -102,13 +102,13 @@ Light GetAdditionalLight(int index, Surface surface)
     AdditionalLightData lightData   = GetAdditionalLightData(index);
     
     float range                     = lightData.LightRange;
-    const float3 lightAxis          = _AdditionalLightsAxis[index];
+    const float3 lightAxis          = normalize(_AdditionalLightsAxis[index]);
     const float4 spotAngles         = _SpotAngles[index];
     float rangeAtten                = GetRangeAtten(distanceSqr, range);
     float spotAtten                 = 1;
 
     const int lightType             = lightData.LighType;
-    if (lightType == 1)
+    if (lightType == 0)
     {
         spotAtten = GetSpotAtten(lightDirection, lightAxis, spotAngles);
     }

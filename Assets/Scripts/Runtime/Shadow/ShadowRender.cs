@@ -59,15 +59,11 @@ namespace ARP.Render
             shadowmapTexel.x        = shadowmapSize;
             shadowmapTexel.y        = 1f / shadowmapSize;
             
+            ShadowBuffer.SetGlobalVector(ShadowConstants.CascadeShadowMapTexelSizeID, shadowmapTexel);
             ShadowBuffer.SetGlobalVector(ShadowConstants.ShadowMapTexelSizeID, shadowmapTexel);
+            
             context.ExecuteCommandBuffer(ShadowBuffer);
             ShadowBuffer.Clear();
-            
-        }
-
-        private void SendAdditionalShadowDataToGPU(ref ScriptableRenderContext context,
-            ref ShadowGlobalData shadowGlobalData)
-        {
             
         }
         
@@ -75,7 +71,7 @@ namespace ARP.Render
         public void SendToGPU(ref ScriptableRenderContext context, ref ShadowGlobalData shadowGlobalData)
         {
             _directionalShadowRender.SendToGPU(ref context, ref shadowGlobalData);
-            SendAdditionalShadowDataToGPU(ref context, ref shadowGlobalData);
+            _additionalShadowRender.SendToGPU(ref context, ref shadowGlobalData);
             
             SendShadowTexelDataToGPU(ref context, ref shadowGlobalData);
             SendGlobalShadowDataToGPU(ref context, ref shadowGlobalData);
