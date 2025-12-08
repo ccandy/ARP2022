@@ -34,7 +34,7 @@ half GetDirectionalShadowAtten(int lightindex, Surface surface, ShadowStrengthCa
 {
     if (lightindex >= MAX_DIRECTIONS_SHADOW_LIGHTS)
     {
-        return 0;
+        return 1;
     }
 
     const int cascadeIndex              = shadowStrengthCascadeData.cascadeIndex;
@@ -66,23 +66,23 @@ half GetAdditionalShadowAtten(int lightindex, Surface surface)
 {
     if (lightindex >= MAX_DIRECTIONS_SHADOW_LIGHTS)
     {
-        return 0;
+        return 1;
     }
 
     const float3 worldpos               = surface.worldPos;
     const float3 worldnormal            = surface.normal;
     
     ShadowData shadowData               = GetAdditionalShadowData(lightindex);
-    float4x4 shadowToWorldCascadeMat    = _ShadowToWorldMat[lightindex];
+    float4x4 shadowToWorldMat           = _ShadowToWorldMat[lightindex];
     
     const float normalBias              = shadowData.normalbias;
     const float3 bias                   = normalBias * worldnormal;
     const int enableSoftShadow          = shadowData.enableSoftShadow;
 
-    float4 shadowPos                    = mul(shadowToWorldCascadeMat,float4(worldpos + bias,1));
+    float4 shadowPos                    = mul(shadowToWorldMat,float4(worldpos + bias,1));
     shadowPos.xyz                       /= shadowPos.w;
 
-    const half shadowAtten              = SampleShadowmap(TEXTURE2D_ARGS(_ShadowMap, sampler_ShadowMap), shadowPos.xyz, _ShadowMapTexelSize, 1);
+    const half shadowAtten              = SampleShadowmap(TEXTURE2D_ARGS(_ShadowMap, sampler_ShadowMap), shadowPos.xyz, _ShadowMapTexelSize, enableSoftShadow);
     const half shadowStrength           = shadowData.strength;
     
     return lerp(1, shadowAtten,shadowStrength);
