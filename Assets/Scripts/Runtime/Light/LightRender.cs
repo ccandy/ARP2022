@@ -13,9 +13,6 @@ namespace ARP.Render
         private AdditionalLightRender _additionalLightRender    = new AdditionalLightRender();
         
         private CommandBuffer cmd;
-        private int additionalLightCount;
-        
-        
         public LightRender()
         {
             cmd = new CommandBuffer()
@@ -35,10 +32,9 @@ namespace ARP.Render
 
         public void SetupLightData(ScriptableRenderContext context, ref CullingResults cullingResults, ref ShadowGlobalData shadowGlobalData)
         {
-            additionalLightCount = 0;
-            
             _directionalLightRender.Init();
             _additionalLightRender.Init();
+            _shadowRender.Init();
             
             NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
             for (int i = 0; i < visibleLights.Length; ++i)

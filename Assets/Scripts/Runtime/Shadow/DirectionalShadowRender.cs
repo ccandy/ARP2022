@@ -21,6 +21,11 @@ namespace ARP.Render
 
         private CascadeData cascadeData;
 
+        public void Init()
+        {
+            dirShadowCount = 0;
+        }
+        
         public DirectionalShadowRender(CommandBuffer cmd)
         {
             shadowBuffer = cmd;
@@ -177,6 +182,12 @@ namespace ARP.Render
             for (int i = 0; i < dirShadowCount; i++)
             { 
                 DirectionalShadowData data  = _directionalShadowDatas[i];
+                if (data == null)
+                {
+                    Debug.LogError("DirectionalShadowData is null");
+                    continue;
+                }
+                
                 Matrix4x4[] matrices        = data.ShadowMatrix;
                 
                 for (int j = 0; j < cascadeCount; j++)
@@ -196,6 +207,13 @@ namespace ARP.Render
             for (int n = 0; n < cascadeCount; n++)
             {
                 CullSphereData data     = _cullSphereDatas[n];
+
+                if (data == null)
+                {
+                    Debug.LogError("CullSphereData is null");
+                    continue;
+                }
+                
                 cullingSpheres[n]       = data.Center;
 
                 Vector4 cullingSphereData   = new Vector4();

@@ -15,6 +15,11 @@ namespace ARP.Render
         
         public CommandBuffer shadowBuffer;
 
+        public void Init()
+        {
+            additionalShadowCount = 0;
+        }
+        
         public AdditionalShadowRender(CommandBuffer cmd)
         {
             shadowBuffer = cmd;
@@ -41,10 +46,7 @@ namespace ARP.Render
             
             additionalShadowCount++;
         }
-
         
-        
-
         public void Render(ref ScriptableRenderContext context, ref CullingResults cullingResults,
             ref ShadowGlobalData shadowGlobalData)
         {
@@ -125,6 +127,7 @@ namespace ARP.Render
                 asd.z                       = data.EnableSoftShadow ? 1 : 0;
                 asd.w                       = data.TileIndex;
                 additionalShadowData[i]     = asd;
+                
             }
             
             shadowBuffer.SetGlobalMatrixArray(ShadowConstants.ShadowToWorldMatID, worldToShadowMat);
