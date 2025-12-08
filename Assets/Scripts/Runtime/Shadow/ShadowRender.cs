@@ -8,13 +8,19 @@ namespace ARP.Render
 {
     public class ShadowRender 
     {
-        private const string            bufferName                         = "ShadowBuffer";
+        private const string            bufferName  = "ShadowBuffer";
         
         private CommandBuffer           ShadowBuffer;
         private CascadeData             cascadeData;
 
         private DirectionalShadowRender _directionalShadowRender;
         private AdditionalShadowRender _additionalShadowRender;
+
+        public void Init()
+        {
+            _directionalShadowRender.Init();
+            _additionalShadowRender.Init();
+        }
         
         public ShadowRender()
         {
